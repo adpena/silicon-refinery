@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "type": "FoundationModels.Transcript",
+  "transcript": {
+    "entries": [
+      {
+        "id": "inst-0001",
+        "role": "instructions",
+        "contents": [
+          {
+            "type": "text",
+            "text": "You are a concise customer support assistant."
+          }
+        ],
+        "tools": [
+          {
+            "name": "lookup_order",
+            "description": "Fetch order status by order id."
+          }
+        ]
+      },
+      {
+        "id": "user-0001",
+        "role": "user",
+        "contents": [
+          {
+            "type": "text",
+            "text": "Can you check order 42? It still shows pending."
+          }
+        ],
+        "responseFormat": {
+          "type": "json_schema"
+        }
+      },
+      {
+        "id": "resp-0001",
+        "role": "response",
+        "contents": [
+          {
+            "type": "text",
+            "text": "I can help with that. I will check the latest status."
+          }
+        ],
+        "toolCalls": [
+          {
+            "name": "lookup_order",
+            "arguments": {
+              "order_id": 42
+            }
+          }
+        ],
+        "assets": [
+          "apple.foundationmodels.v1"
+        ]
+      },
+      {
+        "id": "tool-0001",
+        "role": "tool",
+        "contents": [
+          {
+            "type": "text",
+            "text": "order_id=42 status=shipped eta=2 days"
+          }
+        ]
+      },
+      {
+        "id": "resp-0002",
+        "role": "response",
+        "contents": [
+          {
+            "type": "text",
+            "text": "Order 42 is shipped and expected in about 2 days."
+          }
+        ],
+        "assets": [
+          "apple.foundationmodels.v1"
+        ]
+      }
+    ]
+  }
+}

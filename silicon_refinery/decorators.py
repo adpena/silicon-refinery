@@ -1,13 +1,20 @@
+import asyncio
 import functools
-import time
 import logging
-import apple_fm_sdk as fm
-from typing import TypeVar, Callable, Any, cast
+import time
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
+
+from .exceptions import AppleFMSetupError, ensure_model_available
+from .protocols import ModelProtocol, create_model, create_session
 
 logger = logging.getLogger("silicon_refinery")
 
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
+
+# Transient errors that are worth retrying
+_TRANSIENT_ERRORS = (TimeoutError, ConnectionError, OSError)
 
 
 def local_extract(
@@ -28,26 +35,40 @@ def local_extract(
     Returns:
         Callable: The wrapped function returning the requested structured schema.
     """
+    if retries < 1:
+        raise ValueError("retries must be >= 1")
 
     def decorator(func: F) -> F:
+        # Cache model lazily on first call
+        _cached_model: ModelProtocol | None = None
+        # Pre-compute instructions at decoration time (not per-call)
+        instructions = (func.__doc__ or "Extract the following data.").strip()
+
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
-            instructions = func.__doc__ or "Extract the following data."
-            instructions = instructions.strip()
+            nonlocal _cached_model
 
-            # Format inputs gracefully
-            input_text = " ".join(map(str, args))
-            for k, v in kwargs.items():
-                input_text += f"\\n{k}: {v}"
+            # Format inputs using list + join pattern
+            parts = list(map(str, args))
+            input_text = " ".join(parts)
+            kw_parts = [f"\n{k}: {v}" for k, v in kwargs.items()]
+            input_text += "".join(kw_parts)
 
-            model = fm.SystemLanguageModel()
-            is_available, reason = model.is_available()
-            if not is_available:
-                raise RuntimeError(f"Foundation Model is not available: {reason}")
+            # Cache model at decoration time (lazily on first call)
+            if _cached_model is None:
+                _cached_model = create_model()
+                try:
+                    ensure_model_available(_cached_model, context="local_extract")
+                except AppleFMSetupError:
+                    _cached_model = None
+                    raise
 
-            session = fm.LanguageModelSession(model=model, instructions=instructions)
+            model = _cached_model
 
+            last_exception = None
             for attempt in range(retries):
+                # Fresh session per attempt to avoid stale conversation state on retry
+                session = create_session(instructions=instructions, model=model)
                 try:
                     start_time = time.perf_counter()
                     result = await session.respond(input_text, generating=schema)
@@ -59,15 +80,23 @@ def local_extract(
                             f"[SiliconRefinery] Extraction completed in {elapsed:.3f}s. Input length: {input_len} chars."
                         )
 
-                    return cast(T, result)
+                    return result
+                except _TRANSIENT_ERRORS as e:
+                    last_exception = e
+                    if attempt < retries - 1:
+                        await asyncio.sleep((2**attempt) * 0.1)
+                    continue
+                except AppleFMSetupError:
+                    # Preserve setup diagnostics.
+                    raise
                 except Exception as e:
-                    if attempt == retries - 1:
-                        raise RuntimeError(
-                            f"Failed to generate structured data after {retries} attempts: {e}"
-                        )
+                    # Non-transient errors fail immediately
+                    raise RuntimeError(f"Failed to generate structured data: {e}") from e
 
-            raise RuntimeError("Exhausted retries")
+            raise RuntimeError(
+                f"Failed to generate structured data after {retries} attempts: {last_exception}"
+            ) from last_exception
 
-        return cast(F, wrapper)
+        return cast("F", wrapper)
 
     return decorator

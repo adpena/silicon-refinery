@@ -1,17 +1,36 @@
 """
-Shared fixtures and mock factories for SiliconRefinery test suite.
+Shared fixtures and mock factories for the SiliconRefinery test suite.
+
+CRITICAL: The apple_fm_sdk module-level mock MUST be installed before any
+silicon_refinery modules are imported, because:
+  - debugging.py uses @fm.generable() and fm.guide() at class definition time
+  - decorators.py, pipeline.py, etc. do `import apple_fm_sdk as fm` at module level
 
 All tests mock apple_fm_sdk objects because the real SDK requires macOS 26+
 with Apple Silicon hardware and a running Foundation Model service.
 """
 
-import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
+import sys
+from unittest.mock import AsyncMock, MagicMock, patch
 
+# ---------------------------------------------------------------------------
+# Install a fake apple_fm_sdk into sys.modules BEFORE any silicon_refinery
+# imports happen.  This is the single most important line in the test suite.
+# ---------------------------------------------------------------------------
+_mock_fm = MagicMock()
+_mock_fm.generable.return_value = lambda cls: cls  # passthrough decorator
+_mock_fm.guide.return_value = None  # field descriptor -> None
+_mock_fm.SystemLanguageModel = MagicMock
+_mock_fm.LanguageModelSession = MagicMock
+sys.modules["apple_fm_sdk"] = _mock_fm
+
+# Now it is safe to import pytest (which may trigger conftest collection)
+import pytest  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Lightweight schema stand-in (replaces @fm.generable() decorated classes)
 # ---------------------------------------------------------------------------
+
 
 class MockSchema:
     """A plain class that mimics an @fm.generable() schema for testing."""
@@ -50,6 +69,7 @@ class MockDebuggingAnalysis:
 # Mock factory functions
 # ---------------------------------------------------------------------------
 
+
 def make_mock_model(available=True, reason=None):
     """Create a mock SystemLanguageModel with configurable availability."""
     model = MagicMock()
@@ -79,6 +99,7 @@ def make_mock_session(respond_return=None, respond_side_effect=None):
 # ---------------------------------------------------------------------------
 # Pytest fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def mock_fm_available():

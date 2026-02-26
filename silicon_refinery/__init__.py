@@ -1,23 +1,68 @@
 """
-SiliconRefinery: A Zero-Trust Local Data Refinery Framework built on python-apple-fm-sdk
+SiliconRefinery public API.
 
-This framework provides intuitive, idiomatic Python patterns (decorators, pipelines, generators, and polars integration)
-for extracting and transforming large datasets completely on-device, with zero cloud dependency and zero data egress.
+Root imports are provided lazily so CLI workflows can run even when the Apple
+Foundation Models SDK is not installed in the current interpreter.
 """
 
-try:
-    import apple_fm_sdk
-except ImportError:
-    raise ImportError(
-        "\n\n[SiliconRefinery] Error: 'apple-fm-sdk' is not installed.\n"
-        "This framework requires the Apple Foundation Models SDK to be installed manually.\n"
-        "Please follow the installation guide: https://github.com/adpena/silicon-refinery#installation\n"
-    ) from None
+from __future__ import annotations
 
-from .decorators import local_extract
-from .pipeline import Source, Extract, Sink
-from .async_generators import stream_extract
-from .debugging import enhanced_debug
-# Note: Polars and DSPy extensions are imported directly via their namespaces when needed.
+from typing import Any
 
-__all__ = ["local_extract", "Source", "Extract", "Sink", "stream_extract", "enhanced_debug"]
+from .exceptions import AppleFMSetupError, raise_setup_error
+
+__all__ = [
+    "AppleFMSetupError",
+    "Extract",
+    "Sink",
+    "Source",
+    "enhanced_debug",
+    "local_extract",
+    "stream_extract",
+]
+
+
+def _raise_missing_sdk() -> None:
+    raise_setup_error(
+        "silicon_refinery", reason="ModuleNotFoundError: No module named 'apple_fm_sdk'"
+    )
+
+
+def __getattr__(name: str) -> Any:
+    if name == "local_extract":
+        try:
+            from .decorators import local_extract
+        except ModuleNotFoundError as exc:
+            if exc.name == "apple_fm_sdk":
+                _raise_missing_sdk()
+            raise
+        return local_extract
+
+    if name == "stream_extract":
+        try:
+            from .async_generators import stream_extract
+        except ModuleNotFoundError as exc:
+            if exc.name == "apple_fm_sdk":
+                _raise_missing_sdk()
+            raise
+        return stream_extract
+
+    if name == "enhanced_debug":
+        try:
+            from .debugging import enhanced_debug
+        except ModuleNotFoundError as exc:
+            if exc.name == "apple_fm_sdk":
+                _raise_missing_sdk()
+            raise
+        return enhanced_debug
+
+    if name in {"Source", "Extract", "Sink"}:
+        try:
+            from .pipeline import Extract, Sink, Source
+        except ModuleNotFoundError as exc:
+            if exc.name == "apple_fm_sdk":
+                _raise_missing_sdk()
+            raise
+        return {"Source": Source, "Extract": Extract, "Sink": Sink}[name]
+
+    raise AttributeError(f"module 'silicon_refinery' has no attribute {name!r}")

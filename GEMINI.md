@@ -33,6 +33,28 @@ The project is structured into several core modules, each providing a specific i
   - Implements `AppleFMLM`, a DSPy-compatible language model provider.
 - **`silicon_refinery.debugging`**:
   - Contains the structured AI analysis logic used by the `@enhanced_debug` decorator.
+- **`silicon_refinery.cache`**:
+  - sqlite3 content-addressable extraction cache and cache-aware extraction helpers.
+- **`silicon_refinery.protocols`**:
+  - Structural typing interfaces and swappable backend registry used by core extractors.
+- **`silicon_refinery.adapters`**:
+  - Async adapters for file/stdin/CSV/JSONL/iterable/trio sources plus text chunking.
+- **`silicon_refinery._context`**:
+  - `contextvars`-based per-task model/session scoping.
+- **`silicon_refinery._threading`**:
+  - Free-threading detection and synchronization primitives.
+- **`silicon_refinery.scanner`**:
+  - `mmap` sliding-window scanner for large file processing.
+- **`silicon_refinery.watcher`**:
+  - Polling hot-folder daemon for auto-processing incoming files.
+- **`silicon_refinery._jit`**:
+  - Runtime diagnostics, counters, and timing decorator.
+- **`silicon_refinery.arrow_bridge`**:
+  - Arrow IPC file/buffer bridges and Polars conversion helpers.
+- **`silicon_refinery.functional`**:
+  - Functional pipeline composition primitives.
+- **`silicon_refinery.auditor`**:
+  - On-device code auditing and report formatting utilities.
 
 ---
 
@@ -41,39 +63,48 @@ The project is structured into several core modules, each providing a specific i
 ### Prerequisites
 - **OS:** macOS 26.0+ (requires Apple Foundation Models support)
 - **Hardware:** Apple Silicon (M1, M2, M3, M4 series)
-- **Python:** 3.10 or higher (3.13+ recommended for free-threading support)
+- **Python:** CPython 3.13 or higher (3.14+ recommended for free-threading and JIT support)
 
 ### Setup & Installation
-The project uses `uv` for modern, fast dependency management.
+The project uses [`uv`](https://docs.astral.sh/uv/) for modern, fast dependency management.
 
 ```bash
-# Clone the Apple FM SDK (if not already installed)
-git clone https://github.com/apple/python-apple-fm-sdk
-cd python-apple-fm-sdk && uv pip install -e .
+# One-command setup (recommended)
+./scripts/setup.sh
 
-# Install SiliconRefinery in editable mode with dev dependencies
-cd silicon-refinery
-uv pip install -e .[dev]
+# Or manually:
+uv sync --all-groups    # Creates venv, installs all deps (including Apple FM SDK from git)
+source .venv/bin/activate
 ```
+
+> The Apple FM SDK is not on PyPI. `uv sync` automatically clones and builds it from GitHub via `[tool.uv.sources]` in `pyproject.toml`.
 
 ### Key Commands
 
 - **Run Tests:**
   ```bash
-  pytest
+  uv run pytest tests/ -v
   ```
-- **Linting:**
+- **Linting & Formatting:**
   ```bash
-  ruff check .
+  uv run ruff check .
+  uv run ruff format .
+  ```
+- **Type Checking:**
+  ```bash
+  uv run ty check silicon_refinery/
+  ```
+- **System Diagnostics:**
+  ```bash
+  ./scripts/doctor.sh
   ```
 - **Run Examples:**
   ```bash
-  python examples/simple_inference.py
-  python examples/streaming_example.py
+  uv run python use_cases/01_pipeline_operators/example.py
   ```
 - **Stress Testing (Performance/Latency):**
   ```bash
-  python use_cases/07_stress_test_throughput/example.py
+  uv run python use_cases/07_stress_test_throughput/example.py
   ```
 
 ---
@@ -92,7 +123,12 @@ uv pip install -e .[dev]
 ## Use Cases & Examples
 
 Detailed usage patterns are located in the `use_cases/` directory:
-- `01_pipeline_operators`: Declarative ETL construction.
-- `04_ecosystem_polars`: Massive parallel processing in DataFrames.
+- `01_pipeline_operators`: Declarative ETL construction with `Source >> Extract >> Sink`.
+- `02_decorators`: `@local_extract` decorator patterns for structured extraction.
+- `03_async_generators`: `stream_extract` concurrent async streaming pipelines.
+- `04_ecosystem_polars`: Massive parallel processing in Polars DataFrames.
+- `05_dspy_optimization`: DSPy `AppleFMLM` provider for agentic workflows.
 - `06_fastapi_integration`: Serving local AI as a REST microservice.
-- `09_enhanced_debugging`: Auto-analyzing crashes in production.
+- `07_stress_test_throughput`: Performance profiling and throughput benchmarks.
+- `08_context_limit_test`: Context window limit testing and payload escalation.
+- `09_enhanced_debugging`: `@enhanced_debug` AI crash analysis decorator.

@@ -1,5 +1,5 @@
-import polars as pl
 import apple_fm_sdk as fm
+import polars as pl
 
 # Importing the module registers the `local_llm` namespace onto Polars DataFrames
 

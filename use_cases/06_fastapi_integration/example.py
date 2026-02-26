@@ -1,9 +1,11 @@
+import logging
+
+import apple_fm_sdk as fm
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import uvicorn
-import apple_fm_sdk as fm
+
 from silicon_refinery import local_extract
-import logging
 
 logging.basicConfig(level=logging.INFO)
 
@@ -58,7 +60,7 @@ async def extract_data(request: ExtractionRequest):
             },
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 if __name__ == "__main__":

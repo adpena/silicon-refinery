@@ -6,28 +6,29 @@ with all FM SDK calls mocked.
 
 Covers:
   - Full pipeline: Source >> Extract >> Sink with data flowing through
-  - stream_extract feeding into pipeline sink
-  - local_extract used inside a pipeline-like flow
+  - stream_extract feeding into collection
+  - stream_extract with chunking
+  - local_extract used in a loop
   - Error propagation across module boundaries
-  - Concurrent stream_extract followed by Sink-style collection
+  - Concurrent stream_extract followed by collection
 """
 
-import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from silicon_refinery.pipeline import Source, Extract, Sink
+import pytest
+
 from silicon_refinery.async_generators import stream_extract
 from silicon_refinery.decorators import local_extract
-from .conftest import MockSchema, make_mock_model, make_mock_session
+from silicon_refinery.pipeline import Extract, Sink, Source
 
+from .conftest import MockSchema, make_mock_model, make_mock_session
 
 # ========================================================================
 # End-to-end pipeline: Source >> Extract >> Sink
 # ========================================================================
 
-class TestEndToEndPipeline:
 
-    @pytest.mark.asyncio
+class TestEndToEndPipeline:
     async def test_full_pipeline_collects_all_results(self):
         """Source feeds 3 items, Extract processes each, Sink collects them."""
         mock_model = make_mock_model(available=True)
@@ -53,7 +54,7 @@ class TestEndToEndPipeline:
             k = Sink(callback=collected.append)
 
             pipeline = s >> e >> k
-            results = await pipeline.execute()
+            results = await pipeline.collect()
 
             assert len(results) == 3
             assert len(collected) == 3
@@ -61,9 +62,8 @@ class TestEndToEndPipeline:
             names = [r.name for r in results]
             assert names == ["Person_1", "Person_2", "Person_3"]
 
-    @pytest.mark.asyncio
     async def test_pipeline_with_partial_failures(self):
-        """Extract fails on some items but continues processing."""
+        """Extract fails on some items but continues processing (default skip)."""
         mock_model = make_mock_model(available=True)
 
         call_count = 0
@@ -86,19 +86,42 @@ class TestEndToEndPipeline:
             e = Extract(schema=MockSchema)
             pipeline = s >> e
 
-            results = await pipeline.execute()
+            results = await pipeline.collect()
 
             # Items 1 and 3 succeed (odd call_count), items 2 and 4 fail
             assert len(results) == 2
+
+    async def test_pipeline_with_async_sink(self):
+        """Pipeline with an async callback in Sink."""
+        mock_model = make_mock_model(available=True)
+        mock_session = make_mock_session(respond_return=MockSchema(name="async_result"))
+
+        with (
+            patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
+            patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
+        ):
+            collected = []
+
+            async def async_cb(item):
+                collected.append(item)
+
+            s = Source(["data1", "data2"])
+            e = Extract(schema=MockSchema)
+            k = Sink(callback=async_cb)
+
+            pipeline = s >> e >> k
+            results = await pipeline.collect()
+
+            assert len(results) == 2
+            assert len(collected) == 2
 
 
 # ========================================================================
 # stream_extract into collection
 # ========================================================================
 
-class TestStreamExtractIntegration:
 
-    @pytest.mark.asyncio
+class TestStreamExtractIntegration:
     async def test_stream_extract_collects_all(self):
         """stream_extract processes a list and yields structured objects."""
         mock_model = make_mock_model(available=True)
@@ -119,7 +142,6 @@ class TestStreamExtractIntegration:
 
             assert len(results) == 3
 
-    @pytest.mark.asyncio
     async def test_stream_extract_with_chunking_and_collection(self):
         """stream_extract with chunking reduces call count."""
         mock_model = make_mock_model(available=True)
@@ -141,14 +163,32 @@ class TestStreamExtractIntegration:
             # 4 lines / 2 per chunk = 2 chunks
             assert len(results) == 2
 
+    async def test_stream_extract_concurrent_collects_all(self):
+        """Concurrent stream_extract processes all items."""
+        mock_model = make_mock_model(available=True)
+        mock_session = make_mock_session(respond_return=MockSchema(name="concurrent"))
+
+        with (
+            patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
+            patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
+        ):
+            results = []
+            async for item in stream_extract(
+                ["a", "b", "c", "d", "e"],
+                schema=MockSchema,
+                concurrency=3,
+            ):
+                results.append(item)
+
+            assert len(results) == 5
+
 
 # ========================================================================
 # local_extract decorator used in a flow
 # ========================================================================
 
-class TestLocalExtractIntegration:
 
-    @pytest.mark.asyncio
+class TestLocalExtractIntegration:
     async def test_decorated_function_used_in_loop(self):
         """Using local_extract to process multiple items sequentially."""
         mock_model = make_mock_model(available=True)
@@ -178,11 +218,10 @@ class TestLocalExtractIntegration:
 # Cross-module error propagation
 # ========================================================================
 
-class TestCrossModuleErrors:
 
-    @pytest.mark.asyncio
-    async def test_model_unavailable_blocks_pipeline(self):
-        """If the FM is unavailable, Extract node fails for every item."""
+class TestCrossModuleErrors:
+    async def test_model_error_blocks_pipeline(self):
+        """If the FM errors on every respond, Extract skips all items."""
         mock_model = make_mock_model(available=True)
         mock_session = MagicMock()
         mock_session.respond = AsyncMock(side_effect=RuntimeError("model offline"))
@@ -195,11 +234,10 @@ class TestCrossModuleErrors:
             e = Extract(schema=MockSchema)
             pipeline = s >> e
 
-            results = await pipeline.execute()
+            results = await pipeline.collect()
             # All items fail, Extract catches and skips
             assert len(results) == 0
 
-    @pytest.mark.asyncio
     async def test_model_unavailable_blocks_local_extract(self):
         """local_extract raises RuntimeError when model is unavailable."""
         mock_model = make_mock_model(available=False, reason="not downloaded")
@@ -216,3 +254,31 @@ class TestCrossModuleErrors:
 
             with pytest.raises(RuntimeError, match="Foundation Model is not available"):
                 await extract("test")
+
+    async def test_stream_extract_error_does_not_affect_pipeline(self):
+        """stream_extract and pipeline are independent modules."""
+        mock_model = make_mock_model(available=True)
+
+        # stream_extract side: will fail
+        failing_session = make_mock_session(respond_side_effect=RuntimeError("stream fail"))
+
+        # First test stream_extract failure
+        with (
+            patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
+            patch("apple_fm_sdk.LanguageModelSession", return_value=failing_session),
+            pytest.raises(RuntimeError, match="stream fail"),
+        ):
+            async for _ in stream_extract(["data"], schema=MockSchema, concurrency=1):
+                pass
+
+        # Then test pipeline success independently
+        ok_session = make_mock_session(respond_return=MockSchema(name="pipeline_ok"))
+
+        with (
+            patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
+            patch("apple_fm_sdk.LanguageModelSession", return_value=ok_session),
+        ):
+            s = Source(["data"])
+            e = Extract(schema=MockSchema)
+            results = await (s >> e).collect()
+            assert len(results) == 1

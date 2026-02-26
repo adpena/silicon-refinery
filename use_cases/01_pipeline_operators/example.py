@@ -1,7 +1,9 @@
 import asyncio
 import csv
-from silicon_refinery import Source, Extract, Sink
+
 import apple_fm_sdk as fm
+
+from silicon_refinery import Extract, Sink, Source
 
 
 @fm.generable()

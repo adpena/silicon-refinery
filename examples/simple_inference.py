@@ -1,5 +1,6 @@
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2026 Apple Inc. All Rights Reserved.
+# Adapted from the python-apple-fm-sdk examples.
+# Original examples: Copyright (C) 2026 Apple Inc. All Rights Reserved.
+# Modifications: Copyright (c) 2026 Andres D. Pena. MIT License.
 
 """
 Simple Inference Example
@@ -9,20 +10,15 @@ to create a session and get responses.
 """
 
 import asyncio
-import apple_fm_sdk as fm
+
+from examples._support import AppleFMSetupError, require_apple_fm
 
 
 async def main():
     """Run a simple inference session."""
     print("=== Simple Inference Example ===\n")
 
-    # Check if the model is available
-    model = fm.SystemLanguageModel()
-    is_available, reason = model.is_available()
-
-    if not is_available:
-        print(f"Model not available: {reason}")
-        return
+    fm, _model = require_apple_fm("simple_inference.py")
 
     # Create a session with instructions
     session = fm.LanguageModelSession(
@@ -45,4 +41,8 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except AppleFMSetupError as exc:
+        print(exc)
+        raise SystemExit(2) from exc

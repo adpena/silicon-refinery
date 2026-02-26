@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "silicon-refinery"
-version = "0.0.205"
+version = "0.0.207"
 description = "A Zero-Trust Local Data Refinery Framework built on Apple Foundation Models SDK."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = { text = "MIT License" }
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -21,23 +21,63 @@ dependencies = [
     "polars>=0.20.0",
     "dspy>=2.5.0",
     "pydantic>=2.0.0",
-    "fastapi>=0.100.0",
-    "uvicorn>=0.30.0",
+    "click>=8.0.0",
 ]
 
+[project.scripts]
+silicon-refinery = "silicon_refinery.cli:cli_entry"
+
 [project.optional-dependencies]
+api = ["fastapi>=0.100.0", "uvicorn>=0.30.0"]
+adapters = ["trio>=0.25.0"]
+arrow = ["pyarrow>=15.0.0"]
+
+[dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
-    "ruff>=0.5.0",
+    "ruff>=0.14.0",
+    "ty>=0.0.1",
 ]
+apple = [
+    "apple-fm-sdk",
+]
+
+[tool.uv.sources]
+apple-fm-sdk = { git = "https://github.com/apple/python-apple-fm-sdk" }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E501",   # line length (handled by formatter)
+    "UP007",  # X | Y union syntax (we support 3.13+)
+    "UP036",  # keep explicit runtime-version guards where readability matters
+    "UP043",  # avoid broad churn from default generic argument elision
+    "UP047",  # postpone PEP 695 type-parameter migration
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["silicon_refinery"]
+
+[tool.ty.environment]
+python-version = "3.13"
 
 [tool.hatch.build.targets.wheel]
 packages = ["silicon_refinery"]

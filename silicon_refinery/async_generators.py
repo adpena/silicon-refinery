@@ -1,7 +1,11 @@
-import time
+import asyncio
 import logging
-import apple_fm_sdk as fm
-from typing import AsyncGenerator, Iterable, AsyncIterable, Union, Literal, TypeVar
+import os
+import time
+from collections.abc import AsyncGenerator, AsyncIterable, AsyncIterator, Iterable
+from typing import Literal, TypeVar, Union, cast
+
+from .protocols import ModelProtocol, SessionProtocol, create_model, create_session
 
 logger = logging.getLogger("silicon_refinery")
 
@@ -33,8 +37,10 @@ async def _achunk_lines(source: AsyncIterable[str], chunk_size: int) -> AsyncGen
 
 
 async def _compact_history(
-    model: fm.SystemLanguageModel, instructions: str, session: fm.LanguageModelSession
-) -> fm.LanguageModelSession:
+    model: ModelProtocol,
+    instructions: str,
+    session: SessionProtocol,
+) -> SessionProtocol:
     """
     Experimental: Compresses session history into a single summary to maintain
     context without blowing up the context window limit.
@@ -48,14 +54,14 @@ async def _compact_history(
             "Please summarize the key entities, rules, and facts from our conversation so far concisely."
         )
         # Recreate the session, appending the summary to the system instructions
-        new_instructions = f"{instructions}\\n\\nPrior Context Summary:\\n{summary}"
-        new_session = fm.LanguageModelSession(model=model, instructions=new_instructions)
+        new_instructions = f"{instructions}\n\nPrior Context Summary:\n{summary}"
+        new_session = create_session(instructions=new_instructions, model=model)
         return new_session
     except Exception as e:
         logger.warning(
             f"[SiliconRefinery Stream] History compaction failed: {e}. Falling back to clean session."
         )
-        return fm.LanguageModelSession(model=model, instructions=instructions)
+        return create_session(instructions=instructions, model=model)
 
 
 async def stream_extract(
@@ -81,7 +87,8 @@ async def stream_extract(
             - 'keep': Retains session history. May throw ExceededContextWindowSizeError on large streams.
             - 'hybrid': Retains history, but if ExceededContextWindowSizeError occurs, clears it and retries.
             - 'compact': Retains history, but when reaching limits or periodically, summarizes history.
-        concurrency (int | None, optional): Number of parallel extraction tasks to run. Defaults to `os.cpu_count()`.
+        concurrency (int | None, optional): Number of parallel extraction tasks to run.
+                                     Defaults to `min(os.cpu_count(), 4)`.
                                      If > 1, chunks are processed concurrently and yielded out-of-order (like imap_unordered).
                                      Forces history_mode='clear'.
         debug_timing (bool, optional): If True, logs processing time and throughput for each chunk.
@@ -89,13 +96,12 @@ async def stream_extract(
     Yields:
         schema: The populated structured object.
     """
-    import asyncio
-    import os
-
-    model = fm.SystemLanguageModel()
-
     if concurrency is None:
-        concurrency = os.cpu_count() or 1
+        concurrency = min(os.cpu_count() or 1, 4)
+    elif type(concurrency) is not int or concurrency < 1:
+        raise ValueError("concurrency must be an int >= 1")
+
+    model = create_model()
 
     if concurrency > 1 and history_mode != "clear":
         logger.warning(
@@ -103,30 +109,37 @@ async def stream_extract(
         )
         history_mode = "clear"
 
-    # Initialize our first session
-    session = fm.LanguageModelSession(model=model, instructions=instructions)
+    # Apply chunking and determine async vs sync path
+    is_async = isinstance(source_iterable, AsyncIterable)
 
-    # Apply chunking
     if lines_per_chunk > 1:
-        if hasattr(source_iterable, "__aiter__"):
-            iterable = _achunk_lines(source_iterable, lines_per_chunk)
+        if is_async:
+            async_iterable: AsyncIterable[str] = _achunk_lines(
+                cast("AsyncIterable[str]", source_iterable), lines_per_chunk
+            )
         else:
-            iterable = _chunk_lines(source_iterable, lines_per_chunk)
+            sync_iterable: Iterable[str] = _chunk_lines(
+                cast("Iterable[str]", source_iterable), lines_per_chunk
+            )
     else:
-        iterable = source_iterable
-
-    is_async = hasattr(iterable, "__aiter__")
+        if is_async:
+            async_iterable = cast("AsyncIterable[str]", source_iterable)
+        else:
+            sync_iterable = cast("Iterable[str]", source_iterable)
 
     if concurrency == 1:
+        # Create session only for sequential mode where it's actually used
+        session = create_session(instructions=instructions, model=model)
+
         if is_async:
-            async for chunk in iterable:
+            async for chunk in async_iterable:
                 session, result = await _process_chunk(
                     model, session, instructions, chunk, schema, history_mode, debug_timing
                 )
                 if result is not None:
                     yield result
         else:
-            for chunk in iterable:
+            for chunk in sync_iterable:
                 session, result = await _process_chunk(
                     model, session, instructions, chunk, schema, history_mode, debug_timing
                 )
@@ -134,55 +147,68 @@ async def stream_extract(
                     yield result
     else:
         # Concurrent processing (imap_unordered style)
-        pending = set()
+        pending: set[asyncio.Task] = set()
+        exhausted = False
 
         if is_async:
-            async_iterator = iterable.__aiter__()
+            async_iterator: AsyncIterator[str] = async_iterable.__aiter__()
         else:
-            sync_iterator = iter(iterable)
+            sync_iterator = iter(sync_iterable)
 
-        while True:
-            # Fill pending tasks up to the concurrency limit
-            while len(pending) < concurrency:
-                try:
-                    if is_async:
-                        chunk = await async_iterator.__anext__()
-                    else:
-                        chunk = next(sync_iterator)
-                except (StopAsyncIteration, StopIteration):
+        try:
+            while pending or not exhausted:
+                # Fill pending tasks up to the concurrency limit
+                while not exhausted and len(pending) < concurrency:
+                    try:
+                        if is_async:
+                            chunk = await async_iterator.__anext__()
+                        else:
+                            chunk = next(sync_iterator)
+                    except (StopAsyncIteration, StopIteration):
+                        exhausted = True
+                        break
+
+                    task = asyncio.create_task(
+                        _process_chunk(
+                            model, None, instructions, chunk, schema, history_mode, debug_timing
+                        )
+                    )
+                    pending.add(task)
+
+                if not pending:
                     break
 
-                # Each concurrent task gets a fresh session pointer (if 'clear') or its own isolated flow
-                task = asyncio.create_task(
-                    _process_chunk(
-                        model, session, instructions, chunk, schema, history_mode, debug_timing
-                    )
-                )
-                pending.add(task)
-
-            if not pending:
-                break
-
-            # Wait for at least one task to complete
-            done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
-            for task in done:
-                _, result = task.result()
-                if result is not None:
-                    yield result
+                done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+                first_error = None
+                for task in done:
+                    try:
+                        _, result = task.result()
+                        if result is not None:
+                            yield result
+                    except Exception as exc:
+                        if first_error is None:
+                            first_error = exc
+                if first_error is not None:
+                    raise first_error
+        finally:
+            # Cancel any remaining tasks on error or generator close
+            for task in pending:
+                task.cancel()
+            if pending:
+                await asyncio.gather(*pending, return_exceptions=True)
 
 
 async def _process_chunk(
-    model: fm.SystemLanguageModel,
-    session: fm.LanguageModelSession,
+    model: ModelProtocol,
+    session: SessionProtocol | None,
     instructions: str,
     chunk: str,
     schema: type[T],
     history_mode: str,
     debug_timing: bool,
-) -> tuple[fm.LanguageModelSession, T | None]:
-
-    if history_mode == "clear":
-        session = fm.LanguageModelSession(model=model, instructions=instructions)
+) -> tuple[SessionProtocol, T | None]:
+    if history_mode == "clear" or session is None:
+        session = create_session(instructions=instructions, model=model)
 
     payload = str(chunk)
 
@@ -212,7 +238,7 @@ async def _process_chunk(
                 logger.info(
                     "[SiliconRefinery Stream] Context window exceeded in 'hybrid' mode. Clearing history and retrying chunk..."
                 )
-                session = fm.LanguageModelSession(model=model, instructions=instructions)
+                session = create_session(instructions=instructions, model=model)
                 return await _process_chunk(
                     model, session, instructions, chunk, schema, "clear", debug_timing
                 )
@@ -225,4 +251,4 @@ async def _process_chunk(
                 )  # retry with keep so we don't loop infinitely if compact fails
 
         logger.error(f"[SiliconRefinery Stream] Failed to process chunk. Error: {e}")
-        raise e
+        raise

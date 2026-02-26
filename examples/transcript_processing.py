@@ -1,5 +1,6 @@
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2026 Apple Inc. All Rights Reserved.
+# Adapted from the python-apple-fm-sdk examples.
+# Original examples: Copyright (C) 2026 Apple Inc. All Rights Reserved.
+# Modifications: Copyright (c) 2026 Andres D. Pena. MIT License.
 
 """
 Transcript Processing Example
@@ -15,11 +16,15 @@ The example shows:
 - Comparing multiple transcripts
 """
 
+import argparse
 import json
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Any
+
+from examples._support import AppleFMSetupError, require_apple_fm
 
 
-def load_transcript(file_path: str) -> Dict[str, Any]:
+def load_transcript(file_path: str) -> dict[str, Any]:
     """
     Load a transcript exported from a Swift app.
 
@@ -45,11 +50,11 @@ def load_transcript(file_path: str) -> Dict[str, Any]:
             }
         }
     """
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return json.load(f)
 
 
-def extract_text_from_contents(contents: List[Dict[str, Any]]) -> str:
+def extract_text_from_contents(contents: list[dict[str, Any]]) -> str:
     """
     Extract text from a contents array.
 
@@ -70,7 +75,7 @@ def extract_text_from_contents(contents: List[Dict[str, Any]]) -> str:
     return " ".join(text_parts)
 
 
-def analyze_transcript(transcript: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_transcript(transcript: dict[str, Any]) -> dict[str, Any]:
     """
     Analyze a transcript and extract key metrics.
 
@@ -144,7 +149,7 @@ def analyze_transcript(transcript: Dict[str, Any]) -> Dict[str, Any]:
     return analysis
 
 
-def print_transcript_summary(transcript: Dict[str, Any], analysis: Dict[str, Any]):
+def print_transcript_summary(transcript: dict[str, Any], analysis: dict[str, Any]):
     """Print a formatted summary of the transcript."""
     print("=" * 60)
     print("TRANSCRIPT SUMMARY")
@@ -188,7 +193,7 @@ def print_transcript_summary(transcript: Dict[str, Any], analysis: Dict[str, Any
     print("=" * 60)
 
 
-def print_transcript_entries(transcript: Dict[str, Any], max_entries: int = 5):
+def print_transcript_entries(transcript: dict[str, Any], max_entries: int = 5):
     """Print the first few entries from the transcript."""
     entries = transcript.get("transcript", {}).get("entries", [])
 
@@ -236,7 +241,7 @@ def print_transcript_entries(transcript: Dict[str, Any], max_entries: int = 5):
     print("-" * 60)
 
 
-def compare_transcripts(transcripts: List[Dict[str, Any]]) -> Dict[str, Any]:
+def compare_transcripts(transcripts: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Compare multiple transcripts and generate comparison metrics.
 
@@ -263,7 +268,7 @@ def compare_transcripts(transcripts: List[Dict[str, Any]]) -> Dict[str, Any]:
     return comparison
 
 
-def export_analysis_to_jsonl(transcripts: List[Dict[str, Any]], output_file: str):
+def export_analysis_to_jsonl(transcripts: list[dict[str, Any]], output_file: str):
     """
     Export transcript analyses to JSONL for further processing.
 
@@ -282,18 +287,28 @@ def export_analysis_to_jsonl(transcripts: List[Dict[str, Any]], output_file: str
     print(f"\n✓ Exported {len(transcripts)} transcript analyses to {output_file}")
 
 
-def main():
+def _default_transcript_path() -> Path:
+    return Path(__file__).resolve().parents[1] / "datasets" / "transcript_sample.json"
+
+
+def main(input_path: str | None = None):
     """Main function demonstrating transcript processing."""
+    require_apple_fm("transcript_processing.py")
+
     print("Example: Processing Transcripts from Swift Apps\n")
     print("This demonstrates how to analyze session data exported from")
     print("your Swift app using the Foundation Models Framework.\n")
 
-    # Use tester transcript
-    transcript_file = "tests/tester_schemas/test_transcript_full.json"
+    transcript_file = Path(input_path) if input_path is not None else _default_transcript_path()
+    if not transcript_file.exists():
+        raise FileNotFoundError(
+            f"Transcript file not found: {transcript_file}\n"
+            "Pass --input /path/to/transcript.json or use the bundled sample under datasets/."
+        )
 
     # Load and analyze transcript
     print("Loading transcript...")
-    transcript = load_transcript(transcript_file)
+    transcript = load_transcript(str(transcript_file))
 
     print("Analyzing transcript...")
     analysis = analyze_transcript(transcript)
@@ -341,4 +356,15 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Analyze a Foundation Models transcript export")
+    parser.add_argument(
+        "--input",
+        default=None,
+        help="Path to transcript JSON. Defaults to datasets/transcript_sample.json.",
+    )
+    args = parser.parse_args()
+    try:
+        main(args.input)
+    except AppleFMSetupError as exc:
+        print(exc)
+        raise SystemExit(2) from exc

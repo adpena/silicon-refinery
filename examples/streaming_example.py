@@ -1,5 +1,6 @@
-# For licensing see accompanying LICENSE file.
-# Copyright (C) 2026 Apple Inc. All Rights Reserved.
+# Adapted from the python-apple-fm-sdk examples.
+# Original examples: Copyright (C) 2026 Apple Inc. All Rights Reserved.
+# Modifications: Copyright (c) 2026 Andres D. Pena. MIT License.
 
 """
 Streaming Response Example
@@ -9,20 +10,15 @@ receiving chunks of text as they are generated.
 """
 
 import asyncio
-import apple_fm_sdk as fm
+
+from examples._support import AppleFMSetupError, require_apple_fm
 
 
 async def main():
     """Run a streaming inference session."""
     print("=== Streaming Response Example ===\n")
 
-    # Check if the model is available
-    model = fm.SystemLanguageModel()
-    is_available, reason = model.is_available()
-
-    if not is_available:
-        print(f"Model not available: {reason}")
-        return
+    fm, _model = require_apple_fm("streaming_example.py")
 
     # Create a session
     session = fm.LanguageModelSession(instructions="You are a helpful assistant.")
@@ -33,11 +29,23 @@ async def main():
     print("Assistant: ", end="", flush=True)
 
     # Iterate through response chunks as they arrive
+    last_text = ""
     async for chunk in session.stream_response(prompt):
-        print(chunk, end="", flush=True)
+        text = str(chunk)
+        # Some SDK implementations stream cumulative text; print only deltas so
+        # output stays readable across both cumulative and token-delta modes.
+        if text.startswith(last_text):
+            print(text[len(last_text) :], end="", flush=True)
+        else:
+            print(text, end="", flush=True)
+        last_text = text
 
     print("\n")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except AppleFMSetupError as exc:
+        print(exc)
+        raise SystemExit(2) from exc

@@ -1,7 +1,9 @@
 import asyncio
-import time
 import logging
+import time
+
 import apple_fm_sdk as fm
+
 from silicon_refinery import stream_extract
 
 # Enable debug logging for SiliconRefinery
@@ -39,7 +41,7 @@ async def main():
     processed_count = 0
 
     # Run the streaming extraction with debug_timing=True
-    async for structured_record in stream_extract(
+    async for _structured_record in stream_extract(
         dataset_stream,
         schema=DataRow,
         instructions="Classify the following text and determine if it requires urgent attention.",

@@ -22,6 +22,7 @@ var/
 wheels/
 share/python-wheels/
 *.egg-info/
+*.dist-info/
 .installed.cfg
 *.egg
 MANIFEST
@@ -170,3 +171,8 @@ uv.lock
 crash_report_for_llm.txt
 *.arrow
 transcript_analyses.jsonl
+
+# Local publish/build workspaces
+.chat-repos/
+examples/toga_local_chat_app/.briefcase/
+examples/toga_local_chat_app/logs/
