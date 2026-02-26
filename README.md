@@ -214,6 +214,27 @@ The standalone macOS app repository (`silicon-refinery-chat`) is synced and pack
 
 GitHub Actions automation lives at [`.github/workflows/publish-chat-repo.yml`](.github/workflows/publish-chat-repo.yml) and runs on release publish. Configure secret `CHAT_REPO_GH_TOKEN` (a PAT with repo write access to `adpena/silicon-refinery-chat`) before enabling cross-repo publish.
 
+For Gatekeeper-safe public installs (no "Apple could not verify..." warning), use Developer ID signing + notarization:
+
+```bash
+CHAT_SIGN_MODE=developer-id \
+CHAT_SIGN_IDENTITY="Developer ID Application: <YOUR NAME> (<TEAM_ID>)" \
+CHAT_NOTARIZE_MODE=required \
+APPLE_NOTARY_PROFILE="<YOUR_NOTARY_PROFILE>" \
+./scripts/publish_chat_repo.sh --repo adpena/silicon-refinery-chat
+```
+
+This flow signs with hardened runtime via Briefcase identity packaging, notarizes via `xcrun notarytool`, staples tickets with `xcrun stapler`, and validates with `spctl`/`codesign`.
+
+For CI-managed signing/notarization, use [`.github/workflows/publish-chat-signed.yml`](.github/workflows/publish-chat-signed.yml) on a self-hosted macOS 26+ Apple Silicon runner. Required secrets:
+
+- `CHAT_REPO_GH_TOKEN`
+- `APPLE_SIGN_IDENTITY`
+- Notarization auth via either:
+  - `APPLE_NOTARY_PROFILE`, or
+  - `APPLE_ID` + `APPLE_TEAM_ID` + `APPLE_APP_SPECIFIC_PASSWORD`, or
+  - `APPLE_NOTARY_KEY_ID` + `APPLE_NOTARY_ISSUER` + `APPLE_NOTARY_KEY_B64`
+
 ### Optional dependencies
 
 ```bash
@@ -913,9 +934,11 @@ Two dedicated use cases profile SiliconRefinery's performance characteristics.
 
 ### Test environment
 
+All benchmark measurements below were run on a **MacBook Pro with an M1 chip and 8 GB of RAM**.
+
 | Component | Specification |
 |---|---|
-| **Hardware** | Apple M1 (MacBookPro17,1) — 8 Cores (4P + 4E), 8GB Unified Memory |
+| **Hardware** | MacBook Pro (M1 chip, 8 GB RAM; MacBookPro17,1) — 8 cores (4P + 4E) |
 | **OS** | macOS 26.3 (Build 25D125) |
 | **Python** | 3.14.3 |
 | **SDK** | `python-apple-fm-sdk` 0.1.0 (Beta) |

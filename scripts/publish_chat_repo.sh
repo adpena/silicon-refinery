@@ -15,6 +15,10 @@ CHAT_RELEASE_NOTES="${CHAT_RELEASE_NOTES:-}"
 CHAT_SKIP_BUILD="${CHAT_SKIP_BUILD:-0}"
 CHAT_SKIP_RELEASE="${CHAT_SKIP_RELEASE:-0}"
 CHAT_ALLOW_CREATE="${CHAT_ALLOW_CREATE:-1}"
+CHAT_SIGN_MODE="${CHAT_SIGN_MODE:-auto}"
+CHAT_SIGN_IDENTITY="${CHAT_SIGN_IDENTITY:-${APPLE_SIGN_IDENTITY:-}}"
+CHAT_NOTARIZE_MODE="${CHAT_NOTARIZE_MODE:-auto}"
+CHAT_APP_BUNDLE_NAME="${CHAT_APP_BUNDLE_NAME:-${CHAT_APP_NAME}.app}"
 
 usage() {
   cat <<USAGE
@@ -27,6 +31,10 @@ Options:
   --release-tag <tag>         Child repo release tag (default: v<app version>)
   --skip-build                Skip Briefcase create/build/package
   --skip-release              Skip GitHub release upload/update
+  --adhoc-sign                Force ad-hoc signing (local-only app; no notarization)
+  --sign-identity <identity>  Use Developer ID identity for redistributable signing
+  --no-notarize               Disable notarization even when signing with identity
+  --notarize-required         Require notarization (fail if creds are unavailable)
   --no-create                 Fail if the target repo does not already exist
   -h, --help                  Show this help
 USAGE
@@ -58,6 +66,23 @@ while [[ $# -gt 0 ]]; do
       CHAT_SKIP_RELEASE=1
       shift
       ;;
+    --adhoc-sign)
+      CHAT_SIGN_MODE="adhoc"
+      shift
+      ;;
+    --sign-identity)
+      CHAT_SIGN_MODE="developer-id"
+      CHAT_SIGN_IDENTITY="$2"
+      shift 2
+      ;;
+    --no-notarize)
+      CHAT_NOTARIZE_MODE="off"
+      shift
+      ;;
+    --notarize-required)
+      CHAT_NOTARIZE_MODE="required"
+      shift
+      ;;
     --no-create)
       CHAT_ALLOW_CREATE=0
       shift
@@ -76,6 +101,53 @@ done
 
 log() {
   printf '\n[%s] %s\n' "publish-chat-repo" "$*"
+}
+
+has_notary_credentials() {
+  if [[ -n "${APPLE_NOTARY_PROFILE:-}" ]]; then
+    return 0
+  fi
+  if [[ -n "${APPLE_ID:-}" && -n "${APPLE_TEAM_ID:-}" && -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]]; then
+    return 0
+  fi
+  if [[ -n "${APPLE_NOTARY_KEY_PATH:-}" && -n "${APPLE_NOTARY_KEY_ID:-}" && -n "${APPLE_NOTARY_ISSUER:-}" ]]; then
+    return 0
+  fi
+  return 1
+}
+
+validate_developer_id_identity() {
+  local identity="$1"
+  local listing
+
+  require_cmd security
+  listing="$(security find-identity -v -p codesigning 2>/dev/null || true)"
+  if [[ -z "$listing" ]]; then
+    echo "Error: unable to read codesigning identities from macOS keychain." >&2
+    exit 1
+  fi
+
+  if [[ "$identity" =~ ^[A-Fa-f0-9]{40}$ ]]; then
+    if ! grep -Fq "$identity" <<<"$listing"; then
+      echo "Error: signing identity hash '$identity' was not found in keychain." >&2
+      exit 1
+    fi
+    if ! grep -F "$identity" <<<"$listing" | grep -Fq "Developer ID Application"; then
+      echo "Error: identity hash '$identity' is not a Developer ID Application certificate." >&2
+      exit 1
+    fi
+    return 0
+  fi
+
+  if [[ "$identity" != *"Developer ID Application"* ]]; then
+    echo "Error: developer-id mode requires a 'Developer ID Application' identity." >&2
+    echo "Provided: $identity" >&2
+    exit 1
+  fi
+  if ! grep -Fq "\"$identity\"" <<<"$listing"; then
+    echo "Error: signing identity '$identity' was not found in keychain." >&2
+    exit 1
+  fi
 }
 
 require_cmd() {
@@ -151,6 +223,8 @@ fi
 
 log "Target repo: ${CHAT_REPO}"
 log "App version: ${APP_VERSION}"
+log "Sign mode: ${CHAT_SIGN_MODE}"
+log "Notarize mode: ${CHAT_NOTARIZE_MODE}"
 
 if gh repo view "$CHAT_REPO" >/dev/null 2>&1; then
   log "Repository exists."
@@ -185,6 +259,7 @@ else
   fi
 fi
 
+SIGNING_PERFORMED=0
 if [[ "$CHAT_SKIP_BUILD" != "1" ]]; then
   log "Building macOS app artifact with Briefcase"
   uv sync --project "$APP_DIR" --directory "$APP_DIR"
@@ -195,7 +270,40 @@ if [[ "$CHAT_SKIP_BUILD" != "1" ]]; then
     uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase create macOS --no-input
   fi
   uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase build macOS --no-input
-  uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase package macOS --adhoc-sign --no-input
+
+  BRIEFCASE_PACKAGE_ARGS=(package macOS --no-input)
+  case "$CHAT_SIGN_MODE" in
+    developer-id)
+      if [[ -z "$CHAT_SIGN_IDENTITY" ]]; then
+        echo "Error: --sign-identity or CHAT_SIGN_IDENTITY/APPLE_SIGN_IDENTITY is required for developer-id signing." >&2
+        exit 1
+      fi
+      require_cmd xcrun
+      require_cmd codesign
+      validate_developer_id_identity "$CHAT_SIGN_IDENTITY"
+      BRIEFCASE_PACKAGE_ARGS+=(--identity "$CHAT_SIGN_IDENTITY" --no-notarize)
+      SIGNING_PERFORMED=1
+      ;;
+    adhoc)
+      BRIEFCASE_PACKAGE_ARGS+=(--adhoc-sign)
+      ;;
+    auto)
+      if [[ -n "$CHAT_SIGN_IDENTITY" ]]; then
+        require_cmd xcrun
+        require_cmd codesign
+        validate_developer_id_identity "$CHAT_SIGN_IDENTITY"
+        BRIEFCASE_PACKAGE_ARGS+=(--identity "$CHAT_SIGN_IDENTITY" --no-notarize)
+        SIGNING_PERFORMED=1
+      else
+        BRIEFCASE_PACKAGE_ARGS+=(--adhoc-sign)
+      fi
+      ;;
+    *)
+      echo "Error: unsupported CHAT_SIGN_MODE '$CHAT_SIGN_MODE' (expected auto|developer-id|adhoc)." >&2
+      exit 2
+      ;;
+  esac
+  uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase "${BRIEFCASE_PACKAGE_ARGS[@]}"
 else
   log "Skipping build by request"
 fi
@@ -219,6 +327,52 @@ if [[ "${#FOUND_ARTIFACTS[@]}" -eq 0 ]]; then
     echo "Error: no build artifacts found in $ARTIFACT_SOURCE_DIR" >&2
     exit 1
   fi
+fi
+
+SHOULD_NOTARIZE=0
+case "$CHAT_NOTARIZE_MODE" in
+  off)
+    SHOULD_NOTARIZE=0
+    ;;
+  required)
+    if ! has_notary_credentials; then
+      echo "Error: CHAT_NOTARIZE_MODE=required but no notarization credentials were provided." >&2
+      echo "Set APPLE_NOTARY_PROFILE, or APPLE_ID/APPLE_TEAM_ID/APPLE_APP_SPECIFIC_PASSWORD," >&2
+      echo "or APPLE_NOTARY_KEY_PATH/APPLE_NOTARY_KEY_ID/APPLE_NOTARY_ISSUER." >&2
+      exit 1
+    fi
+    SHOULD_NOTARIZE=1
+    ;;
+  auto)
+    if [[ "$SIGNING_PERFORMED" == "1" ]] && has_notary_credentials; then
+      SHOULD_NOTARIZE=1
+    fi
+    ;;
+  *)
+    echo "Error: unsupported CHAT_NOTARIZE_MODE '$CHAT_NOTARIZE_MODE' (expected auto|required|off)." >&2
+    exit 2
+    ;;
+esac
+
+if [[ "$SHOULD_NOTARIZE" == "1" && "${#FOUND_ARTIFACTS[@]}" -gt 0 ]]; then
+  NOTARY_SCRIPT="$ROOT_DIR/scripts/notarize_macos_artifact.sh"
+  if [[ ! -x "$NOTARY_SCRIPT" ]]; then
+    echo "Error: notarization script is missing or not executable: $NOTARY_SCRIPT" >&2
+    exit 1
+  fi
+  for artifact in "${FOUND_ARTIFACTS[@]}"; do
+    case "$artifact" in
+      *.dmg|*.pkg|*.zip)
+        log "Notarizing artifact: $(basename "$artifact")"
+        "$NOTARY_SCRIPT" --artifact "$artifact" --app-name "$CHAT_APP_BUNDLE_NAME"
+        ;;
+      *)
+        log "Skipping unsupported notarization artifact type: $artifact"
+        ;;
+    esac
+  done
+elif [[ "$SIGNING_PERFORMED" == "1" ]]; then
+  log "Developer ID signing used without notarization. Installers may trigger Gatekeeper warnings."
 fi
 
 log "Syncing source tree to child repo"

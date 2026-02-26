@@ -67,8 +67,16 @@ cd examples/toga_local_chat_app
 source .venv/bin/activate
 briefcase create macOS
 briefcase build macOS
+# Local-only build on this machine
 briefcase package macOS --adhoc-sign
+
+# Redistributable build (Developer ID signing)
+briefcase package macOS --identity "Developer ID Application: <YOUR NAME> (<TEAM_ID>)" --no-notarize
+APPLE_NOTARY_PROFILE="<YOUR_NOTARY_PROFILE>" \
+  ../../scripts/notarize_macos_artifact.sh --artifact "dist/SiliconRefineryChat-<VERSION>.dmg" --app-name "SiliconRefineryChat.app"
 ```
+
+`--adhoc-sign` artifacts are local-only and will trigger Gatekeeper warnings on other machines. Use Developer ID + notarization for user-facing releases.
 
 ## Roadmap
 

@@ -40,4 +40,6 @@ jobs:
           # requires macOS 26+ to build Swift bindings. Keep CI publish in sync
           # mode only; local maintainer runs can build/package artifacts.
           CHAT_SKIP_BUILD: "1"
+          CHAT_SIGN_MODE: "adhoc"
+          CHAT_NOTARIZE_MODE: "off"
         run: ./scripts/publish_chat_repo.sh
