@@ -36,5 +36,8 @@ jobs:
           CHAT_REPO: adpena/silicon-refinery-chat
           CHAT_APP_NAME: SiliconRefineryChat
           CHAT_REPO_DESCRIPTION: Standalone macOS app for SiliconRefineryChat (Toga + Briefcase).
-          CHAT_RELEASE_TAG: ${{ github.ref_name }}
+          # GitHub-hosted macOS runners are currently < 26.0, while apple-fm-sdk
+          # requires macOS 26+ to build Swift bindings. Keep CI publish in sync
+          # mode only; local maintainer runs can build/package artifacts.
+          CHAT_SKIP_BUILD: "1"
         run: ./scripts/publish_chat_repo.sh
