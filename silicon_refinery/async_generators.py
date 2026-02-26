@@ -14,10 +14,10 @@ def _chunk_lines(source: Iterable[str], chunk_size: int) -> Iterable[str]:
     for line in source:
         chunk.append(str(line))
         if len(chunk) >= chunk_size:
-            yield "\\n".join(chunk)
+            yield "\n".join(chunk)
             chunk = []
     if chunk:
-        yield "\\n".join(chunk)
+        yield "\n".join(chunk)
 
 
 async def _achunk_lines(source: AsyncIterable[str], chunk_size: int) -> AsyncGenerator[str, None]:
@@ -26,10 +26,10 @@ async def _achunk_lines(source: AsyncIterable[str], chunk_size: int) -> AsyncGen
     async for line in source:
         chunk.append(str(line))
         if len(chunk) >= chunk_size:
-            yield "\\n".join(chunk)
+            yield "\n".join(chunk)
             chunk = []
     if chunk:
-        yield "\\n".join(chunk)
+        yield "\n".join(chunk)
 
 
 async def _compact_history(

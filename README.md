@@ -50,7 +50,7 @@ By running massive unstructured datasets through on-device intelligence, `Silico
 
 2. **Install `SiliconRefinery` from PyPI:**
    ```bash
-   uv pip install silicon_refinery
+   uv pip install silicon-refinery
    ```
 
 ---
