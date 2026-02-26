@@ -3,7 +3,31 @@
 All notable changes to SiliconRefinery will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Versions increment by patch (0.0.205 → 0.0.206 → 0.0.207 ...).
+Versions increment by patch (0.0.205 → 0.0.206 → 0.0.207 → 0.0.208 ...).
+
+## [0.0.208] - 2026-02-26
+
+Release and distribution hardening across GitHub, PyPI, and Homebrew.
+
+### Added
+- Automated standalone chat-repo publisher workflow and script:
+  - `.github/workflows/publish-chat-repo.yml`
+  - `scripts/publish_chat_repo.sh`
+- Standalone `silicon-refinery-chat` sync template and documentation under `standalone/silicon-refinery-chat/`.
+
+### Changed
+- Standardized naming across parent and child app surfaces:
+  - repo/package naming: `silicon-refinery` / `silicon-refinery-chat`
+  - app naming: `SiliconRefinery` / `SiliconRefineryChat`
+- Toga chat app package path renamed to `silicon_refinery_chat`.
+- Briefcase project metadata aligned with `SiliconRefineryChat`.
+- `.gitignore` hardened to prevent local data leakage from SQLite/chat-history artifacts (`*.sqlite*`, `*.db*`) and local publish workspaces.
+
+### Validation
+- `uv run ruff check ...` on touched Python files
+- `uv run ruff format --check ...` on touched Python files
+- `uv run pytest tests/ -q` (482 passed)
+- Standalone publisher idempotency verified against `adpena/silicon-refinery-chat`
 
 ## [0.0.207] - 2026-02-26
 

@@ -1,77 +1,95 @@
 #!/usr/bin/env bash
-# scripts/install_homebrew.sh — install SiliconRefinery via a local Homebrew tap.
+# scripts/install_homebrew.sh — install SiliconRefinery via published Homebrew tap.
 #
 # Usage:
 #   ./scripts/install_homebrew.sh
 #   ./scripts/install_homebrew.sh <tap-name>
+#   ./scripts/install_homebrew.sh --no-chat
 #
 # Defaults:
 #   tap-name = adpena/silicon-refinery
 #
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FORMULA_SRC="${REPO_ROOT}/Formula/silicon-refinery.rb"
-TAP_NAME="${1:-adpena/silicon-refinery}"
+TAP_NAME="adpena/silicon-refinery"
+INSTALL_CHAT=1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --no-chat)
+      INSTALL_CHAT=0
+      shift
+      ;;
+    -h|--help)
+      cat <<USAGE
+Usage: scripts/install_homebrew.sh [tap-name] [--no-chat]
+
+Examples:
+  ./scripts/install_homebrew.sh
+  ./scripts/install_homebrew.sh adpena/silicon-refinery
+  ./scripts/install_homebrew.sh --no-chat
+USAGE
+      exit 0
+      ;;
+    *)
+      TAP_NAME="$1"
+      shift
+      ;;
+  esac
+done
+
 TAP_USER="${TAP_NAME%%/*}"
 TAP_REPO="${TAP_NAME##*/}"
 TAP_FULL_REPO="${TAP_USER}/homebrew-${TAP_REPO}"
+TAP_URL="https://github.com/${TAP_FULL_REPO}"
 FORMULA_FQN="${TAP_NAME}/silicon-refinery"
-SHELL_NAME="$(basename "${SHELL:-}")"
-RC_FILE=""
-case "$SHELL_NAME" in
-    zsh) RC_FILE="$HOME/.zshrc" ;;
-    bash) RC_FILE="$HOME/.bashrc" ;;
-    fish) RC_FILE="$HOME/.config/fish/config.fish" ;;
-esac
+CASK_FQN="${TAP_NAME}/silicon-refinery-chat"
 
-if ! command -v brew &>/dev/null; then
-    echo "Error: Homebrew is not installed."
-    echo "Install Homebrew first: https://brew.sh"
-    exit 1
-fi
-
-if [ ! -f "$FORMULA_SRC" ]; then
-    echo "Error: formula file not found at $FORMULA_SRC"
-    exit 1
+if ! command -v brew >/dev/null 2>&1; then
+  echo "Error: Homebrew is not installed. Install first: https://brew.sh" >&2
+  exit 1
 fi
 
 echo "=== SiliconRefinery Homebrew Installer ==="
 echo "Tap:      $TAP_NAME"
+echo "Tap URL:  $TAP_URL"
 echo "Formula:  $FORMULA_FQN"
+if [[ "$INSTALL_CHAT" == "1" ]]; then
+  echo "Cask:     $CASK_FQN"
+fi
 echo ""
 
 if ! brew tap | grep -qx "$TAP_NAME"; then
-    echo "Creating tap $TAP_NAME..."
-    brew tap-new "$TAP_NAME"
+  echo "Tapping $TAP_NAME..."
+  brew tap "$TAP_NAME" "$TAP_URL"
 else
-    echo "Tap $TAP_NAME already exists."
+  echo "Tap $TAP_NAME already configured."
 fi
 
-TAP_PATH="$(brew --repository "$TAP_FULL_REPO")"
-mkdir -p "$TAP_PATH/Formula"
-cp "$FORMULA_SRC" "$TAP_PATH/Formula/silicon-refinery.rb"
-echo "Synced formula to: $TAP_PATH/Formula/silicon-refinery.rb"
-
-if brew list --formula "$FORMULA_FQN" &>/dev/null; then
-    echo "Reinstalling existing formula from HEAD..."
-    brew reinstall --HEAD "$FORMULA_FQN"
+if brew list --formula "$FORMULA_FQN" >/dev/null 2>&1; then
+  echo "Reinstalling CLI formula from HEAD..."
+  brew reinstall --HEAD "$FORMULA_FQN"
 else
-    echo "Installing formula from HEAD..."
-    brew install --HEAD "$FORMULA_FQN"
+  echo "Installing CLI formula from HEAD..."
+  brew install --HEAD "$FORMULA_FQN"
+fi
+
+if [[ "$INSTALL_CHAT" == "1" ]]; then
+  if brew list --cask "$CASK_FQN" >/dev/null 2>&1; then
+    echo "Reinstalling chat app cask..."
+    brew reinstall --cask "$CASK_FQN"
+  else
+    echo "Installing chat app cask..."
+    brew install --cask "$CASK_FQN"
+  fi
 fi
 
 echo ""
-echo "Installed. Verifying CLI..."
-if command -v silicon-refinery &>/dev/null; then
-    echo "  silicon-refinery -> $(command -v silicon-refinery)"
-    silicon-refinery --help >/dev/null
-    echo "  CLI check passed."
+echo "Install complete."
+if command -v silicon-refinery >/dev/null 2>&1; then
+  echo "  silicon-refinery -> $(command -v silicon-refinery)"
+  silicon-refinery --help >/dev/null
+  echo "  CLI check passed."
 else
-    echo "  CLI not on PATH in this shell yet."
-    if [ -n "$RC_FILE" ]; then
-        echo "  Restart terminal or run: source $RC_FILE"
-    else
-        echo "  Restart terminal to refresh PATH."
-    fi
+  echo "  CLI not on PATH in this shell yet. Restart terminal/session."
 fi

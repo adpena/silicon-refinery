@@ -145,16 +145,17 @@ uv sync --project examples/toga_local_chat_app --directory examples/toga_local_c
 
 - **PyPI:** `silicon-refinery` publishes package metadata and the CLI entry point, but full on-device runtime support still depends on `apple-fm-sdk` (currently pulled from GitHub, not PyPI).
 - **Recommended install path today:** clone this repo and run `./scripts/setup.sh` (or `uv sync --all-groups`) so the Apple SDK source dependency is resolved correctly.
-- **Homebrew:** a tap-compatible formula is provided at [`Formula/silicon-refinery.rb`](Formula/silicon-refinery.rb).
+- **Homebrew tap:** `adpena/homebrew-silicon-refinery`
 
 ```bash
-# Fully automated local tap + install
-./scripts/install_homebrew.sh
+# Tap once
+brew tap adpena/silicon-refinery https://github.com/adpena/homebrew-silicon-refinery
 
-# Manual alternative
-brew tap-new adpena/silicon-refinery
-cp Formula/silicon-refinery.rb "$(brew --repository adpena/homebrew-silicon-refinery)/Formula/silicon-refinery.rb"
+# Install CLI formula
 brew install --HEAD adpena/silicon-refinery/silicon-refinery
+
+# Install standalone desktop app (.app via cask)
+brew install --cask adpena/silicon-refinery/silicon-refinery-chat
 
 # Verify
 silicon-refinery --help
@@ -168,15 +169,18 @@ When shipping a new release and updating Homebrew support:
 # 1) Ensure main branch has the new release commit/tag pushed
 git push origin main --tags
 
-# 2) Update/install from local tap formula
-./scripts/install_homebrew.sh
+# 2) Sync Formula + Cask into the tap repo and push
+#    (tap repo: adpena/homebrew-silicon-refinery)
+#    - Formula/silicon-refinery.rb
+#    - Casks/silicon-refinery-chat.rb
 
 # 3) Validate the installed command
 silicon-refinery --help
 silicon-refinery doctor
+brew install --cask adpena/silicon-refinery/silicon-refinery-chat
 ```
 
-Current formula is HEAD-based (`Formula/silicon-refinery.rb`) while `apple-fm-sdk` remains git-sourced. Once upstream dependencies are fully PyPI-resolvable, we can migrate to stable bottle/versioned formula releases.
+Current CLI formula is HEAD-based (`Formula/silicon-refinery.rb`) while `apple-fm-sdk` remains git-sourced. The app installer is distributed as a cask (`Casks/silicon-refinery-chat.rb`) backed by release DMG assets from `adpena/silicon-refinery-chat`.
 
 ### Standalone Chat Repo release flow
 
