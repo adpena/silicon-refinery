@@ -1,0 +1,169 @@
+Metadata-Version: 2.4
+Name: local_refinery
+Version: 0.1.0
+Summary: A Zero-Trust Local Data Refinery Framework built on Apple Foundation Models SDK.
+Author-email: adpena <adpena@example.com>
+License: MIT License
+Project-URL: Homepage, https://github.com/adpena/local_refinery
+Project-URL: Bug Tracker, https://github.com/adpena/local_refinery/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: polars>=0.20.0
+Requires-Dist: dspy>=2.5.0
+Requires-Dist: pydantic>=2.0.0
+Dynamic: license-file
+
+<div align="center">
+  <h1>🏭 local_refinery</h1>
+  <p><b>A Zero-Trust, Zero-Latency, Zero-Cost ETL Framework for Apple Silicon</b></p>
+  <p>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+    <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python Version">
+    <img src="https://img.shields.io/badge/macOS-26.0+-lightgrey.svg" alt="macOS Version">
+  </p>
+</div>
+
+`local_refinery` is an enterprise-grade data engineering framework built directly on top of the newly released [Apple Foundation Models SDK (`python-apple-fm-sdk`)](https://github.com/apple/python-apple-fm-sdk). 
+
+It transforms your Apple Silicon machine into a hyper-secure, high-throughput extraction node. By running massive unstructured datasets through on-device intelligence, `local_refinery` allows you to extract, redact, and enrich petabytes of "dark data" (messy PDFs, raw logs, medical records, legal contracts) without ever sending a single byte to the cloud.
+
+---
+
+## 🌟 Why `local_refinery`?
+
+- 🛡️ **Absolute Zero-Trust (No Data Egress):** Process HIPAA/GDPR-sensitive data, proprietary source code, and confidential user information safely. Data never leaves your Macbook's Neural Engine.
+- 💸 **Zero Token Costs:** Skip the millions of dollars in API costs associated with processing massive datasets via OpenAI or Anthropic.
+- ⚡ **Zero Network Latency:** Eliminate HTTP overhead. Operations run synchronously or asynchronously at hardware speeds.
+- 🐍 **Super Pythonic API:** UNIX-style pipeline operators (`>>`), beautiful decorators (`@local_extract`), async generators, and deep integrations with the PyData ecosystem (`Polars`, `DSPy`).
+- 🏗️ **Guaranteed Schemas:** Powered by the Apple FM SDK's `generating` protocol, outputs are strictly constrained to your typed schemas. No more brittle regex or JSON parsing errors.
+
+---
+
+## 📦 Installation
+
+`local_refinery` requires macOS 26.0+ and Python 3.10+ running on a compatible Apple Silicon Mac.
+
+1. **Install the Apple FM SDK (Beta):**
+   ```bash
+   git clone https://github.com/apple/python-apple-fm-sdk
+   cd python-apple-fm-sdk
+   pip install -e .
+   ```
+
+2. **Install `local_refinery`:**
+   ```bash
+   pip install local_refinery
+   ```
+
+---
+
+## 🚀 The 5 Pillars of `local_refinery`
+
+The framework provides five distinct, battle-tested paradigms for interacting with on-device intelligence. 
+
+### 1. The `@local_extract` Decorator (Data Structuring)
+Turn any Python function into a strongly-typed LLM extraction engine. The docstring becomes the system prompt.
+
+```python
+from local_refinery import local_extract
+import apple_fm_sdk as fm
+
+@fm.generable()
+class MedicalRecord:
+    patient_symptoms: list[str] = fm.guide(description="Isolated symptoms")
+    suggested_triage: str = fm.guide(anyOf=["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+
+@local_extract(schema=MedicalRecord)
+async def parse_doctor_notes(raw_text: str) -> MedicalRecord:
+    """Extract structured medical data and infer triage urgency."""
+    pass
+
+record = await parse_doctor_notes("Severe migraines and nausea for 4 days. ER immediately.")
+print(record.suggested_triage) # -> "HIGH"
+```
+
+### 2. Composable Pipelines (Batch Processing)
+Use UNIX-style bitwise operators (`>>`) to construct declarative ETL pipelines that run infinitely and memory-efficiently.
+
+```python
+from local_refinery import Source, Extract, Sink
+import csv
+
+pipeline = (
+    Source(csv.DictReader(open("server_logs.csv"))) 
+    >> Extract(schema=LogEntry, instructions="Parse the raw server log.") 
+    >> Sink(callback=lambda item: print(f"Structured Log | Level: {item.level}"))
+)
+
+await pipeline.execute()
+```
+
+### 3. The `Polars` Ecosystem Extension (Data Analytics)
+Run zero-cost local inference directly inside a Polars DataFrame `select` or `with_columns` expression! We register the `.local_llm` namespace to bridge the gap between Rust-backed dataframes and on-device Neural Engines.
+
+```python
+import polars as pl
+from local_refinery.polars_ext import LocalLLMExpr 
+
+df = pl.read_csv("support_tickets.csv")
+
+# Executes the local model across the dataframe column entirely on-device
+enriched_df = df.with_columns(
+    extracted_json=pl.col("email_body").local_llm.extract(schema=Ticket)
+)
+```
+
+### 4. `stream_extract` Generators (Web / Massive Streams)
+Process gigabytes of data lazily using asynchronous generators without blowing up system RAM.
+
+```python
+from local_refinery import stream_extract
+
+async for enriched in stream_extract(review_stream, schema=Feedback, instructions="Analyze sentiment."):
+    print(f"[{enriched.sentiment}] Focus: {enriched.key_feature}")
+    await db.insert(enriched)
+```
+
+### 5. `DSPy` Provider Optimization (Agentic Swarms)
+Initialize DSPy with our custom `AppleFMLM` provider. This bridges DSPy's robust prompt-optimization and swarm-agent capabilities with Apple's free, local hardware.
+
+```python
+import dspy
+from local_refinery.dspy_ext import AppleFMLM
+
+# Configure DSPy to route through the Neural Engine
+dspy.settings.configure(lm=AppleFMLM())
+
+# Use advanced agentic workflows for free
+classifier = dspy.ChainOfThought("customer_email -> summary, priority")
+result = classifier(email="I am locked out of my account!")
+print(result.summary)
+```
+
+---
+
+## 🧪 Battle-Tested
+
+We believe in empirical validation. Check out the `use_cases/` directory for five comprehensive examples that read from real-world datasets (found in `datasets/`) including medical notes, support tickets, product reviews, and server logs.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please ensure that any PRs maintain the core philosophy: zero cloud dependencies, intuitive APIs, and robust schema enforcement.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+*Built with ❤️ utilizing the `python-apple-fm-sdk`.*

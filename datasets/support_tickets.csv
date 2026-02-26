@@ -1,0 +1,5 @@
+ticket_id,email_subject,email_body
+T-100,Cannot login,I've been trying to reset my password but the link never arrives. Please help me access my account!
+T-101,Billing issue,I was charged twice this month for my premium subscription. I need a refund immediately.
+T-102,Feature request,It would be great if we could export our dashboard data to a PDF format instead of just CSV.
+T-103,System down,The entire production database seems to be offline. All our users are seeing 500 errors!

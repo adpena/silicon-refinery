@@ -1,0 +1,5 @@
+log_id,timestamp,log_message
+L1,2023-10-01T10:00:00Z,10:00 AM [auth_service] ERROR - Failed to validate token for user 123. Invalid signature.
+L2,2023-10-01T10:01:00Z,10:01 AM [db_connector] INFO - Connection established successfully to primary cluster.
+L3,2023-10-01T10:02:00Z,10:02 AM [api_gateway] WARNING - High latency detected on route /users. Avg response time 1.5s.
+L4,2023-10-01T10:03:00Z,10:03 AM [payment_service] ERROR - Transaction declined for cart 8921. Insufficient funds.
