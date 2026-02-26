@@ -320,14 +320,14 @@ This is enforced in CI/release via `python3 scripts/check_version_policy.py` (an
 
 ### Standalone Chat Repo release flow
 
-The standalone macOS app repository (`silicon-refinery-chat`) is synced and packaged from this repo automatically.
+The standalone macOS app repository (`silicon-refinery-chat`) is synced and packaged from this repo via a local maintainer run.
 
 ```bash
-# Local/manual sync (create-or-update repo, sync source/docs, build artifact, upload release asset)
+# Local maintainer sync (create-or-update repo, sync source/docs, build artifact, upload release asset)
 ./scripts/publish_chat_repo.sh --repo adpena/silicon-refinery-chat
 ```
 
-GitHub Actions release automation lives at [`.github/workflows/publish-chat-signed.yml`](.github/workflows/publish-chat-signed.yml) and runs on release publish (self-hosted macOS 26+ Apple Silicon runner). A manual sync-only fallback exists at [`.github/workflows/publish-chat-repo.yml`](.github/workflows/publish-chat-repo.yml).
+A sync-only fallback workflow exists at [`.github/workflows/publish-chat-repo.yml`](.github/workflows/publish-chat-repo.yml), but signing/notarization for distributable artifacts is maintained locally.
 
 For Gatekeeper-safe public installs (no "Apple could not verify..." warning), use Developer ID signing + notarization:
 
@@ -342,15 +342,6 @@ export APPLE_NOTARY_PROFILE="${APPLE_NOTARY_PROFILE:?Set your stored notary prof
 
 This flow signs with hardened runtime via Briefcase identity packaging, notarizes via `xcrun notarytool`, staples tickets with `xcrun stapler`, and validates with `spctl`/`codesign`.
 By default, `scripts/publish_chat_repo.sh` also blocks uploading untrusted artifacts to GitHub releases (ad-hoc, unstapled, or non-notarized). For local-only debugging you can explicitly override with `--allow-untrusted-release`.
-
-For CI-managed signing/notarization, use [`.github/workflows/publish-chat-signed.yml`](.github/workflows/publish-chat-signed.yml) on a self-hosted macOS 26+ Apple Silicon runner. Required secrets:
-
-- `CHAT_REPO_GH_TOKEN`
-- `APPLE_SIGN_IDENTITY`
-- Notarization auth via either:
-  - `APPLE_NOTARY_PROFILE`, or
-  - `APPLE_ID` + `APPLE_TEAM_ID` + `APPLE_APP_SPECIFIC_PASSWORD`, or
-  - `APPLE_NOTARY_KEY_ID` + `APPLE_NOTARY_ISSUER` + `APPLE_NOTARY_KEY_B64`
 
 ### Optional dependencies
 
