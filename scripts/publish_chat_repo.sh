@@ -441,9 +441,9 @@ if [[ "$CHAT_SKIP_RELEASE" == "1" ]]; then
   log "Skipping release sync by request"
 else
   prune_release_assets() {
-    local existing_assets=()
-    mapfile -t existing_assets < <(gh release view "$CHAT_RELEASE_TAG" --repo "$CHAT_REPO" --json assets --jq '.assets[].name')
-    for asset_name in "${existing_assets[@]}"; do
+    local asset_name
+    while IFS= read -r asset_name; do
+      [[ -z "$asset_name" ]] && continue
       case "$asset_name" in
         *-"$APP_VERSION".dmg|*-"$APP_VERSION".pkg|*-"$APP_VERSION".zip)
           ;;
@@ -452,7 +452,7 @@ else
           gh release delete-asset "$CHAT_RELEASE_TAG" --repo "$CHAT_REPO" "$asset_name" -y
           ;;
       esac
-    done
+    done < <(gh release view "$CHAT_RELEASE_TAG" --repo "$CHAT_REPO" --json assets --jq '.assets[].name')
   }
 
   if [[ "${#FOUND_ARTIFACTS[@]}" -gt 0 ]]; then
