@@ -212,7 +212,7 @@ The standalone macOS app repository (`silicon-refinery-chat`) is synced and pack
 ./scripts/publish_chat_repo.sh --repo adpena/silicon-refinery-chat
 ```
 
-GitHub Actions automation lives at [`.github/workflows/publish-chat-repo.yml`](.github/workflows/publish-chat-repo.yml) and runs on release publish. Configure secret `CHAT_REPO_GH_TOKEN` (a PAT with repo write access to `adpena/silicon-refinery-chat`) before enabling cross-repo publish.
+GitHub Actions release automation lives at [`.github/workflows/publish-chat-signed.yml`](.github/workflows/publish-chat-signed.yml) and runs on release publish (self-hosted macOS 26+ Apple Silicon runner). A manual sync-only fallback exists at [`.github/workflows/publish-chat-repo.yml`](.github/workflows/publish-chat-repo.yml).
 
 For Gatekeeper-safe public installs (no "Apple could not verify..." warning), use Developer ID signing + notarization:
 
@@ -225,6 +225,7 @@ APPLE_NOTARY_PROFILE="<YOUR_NOTARY_PROFILE>" \
 ```
 
 This flow signs with hardened runtime via Briefcase identity packaging, notarizes via `xcrun notarytool`, staples tickets with `xcrun stapler`, and validates with `spctl`/`codesign`.
+By default, `scripts/publish_chat_repo.sh` also blocks uploading untrusted artifacts to GitHub releases (ad-hoc, unstapled, or non-notarized). For local-only debugging you can explicitly override with `--allow-untrusted-release`.
 
 For CI-managed signing/notarization, use [`.github/workflows/publish-chat-signed.yml`](.github/workflows/publish-chat-signed.yml) on a self-hosted macOS 26+ Apple Silicon runner. Required secrets:
 

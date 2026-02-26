@@ -78,6 +78,7 @@ APPLE_NOTARY_PROFILE="<YOUR_NOTARY_PROFILE>" \
 ```
 
 `--adhoc-sign` artifacts are local-only and will trigger Gatekeeper warnings on other machines. Use Developer ID + notarization for user-facing releases.
+The parent release script (`../../scripts/publish_chat_repo.sh`) enforces trusted release artifacts by default and refuses to upload ad-hoc/non-notarized builds unless explicitly overridden with `--allow-untrusted-release`.
 
 ## Roadmap
 

@@ -1,6 +1,8 @@
 name: Publish Signed Standalone Chat Repo
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       release_tag:
@@ -86,9 +88,12 @@ jobs:
           APPLE_NOTARY_ISSUER: ${{ secrets.APPLE_NOTARY_ISSUER }}
           APPLE_NOTARY_KEY_PATH: ${{ env.APPLE_NOTARY_KEY_PATH }}
           RELEASE_TAG_INPUT: ${{ github.event.inputs.release_tag }}
+          RELEASE_TAG_EVENT: ${{ github.event.release.tag_name }}
         run: |
           if [ -n "${RELEASE_TAG_INPUT}" ]; then
             ./scripts/publish_chat_repo.sh --release-tag "${RELEASE_TAG_INPUT}"
+          elif [ -n "${RELEASE_TAG_EVENT}" ]; then
+            ./scripts/publish_chat_repo.sh --release-tag "${RELEASE_TAG_EVENT}"
           else
             ./scripts/publish_chat_repo.sh
           fi

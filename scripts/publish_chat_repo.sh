@@ -19,6 +19,7 @@ CHAT_SIGN_MODE="${CHAT_SIGN_MODE:-auto}"
 CHAT_SIGN_IDENTITY="${CHAT_SIGN_IDENTITY:-${APPLE_SIGN_IDENTITY:-}}"
 CHAT_NOTARIZE_MODE="${CHAT_NOTARIZE_MODE:-auto}"
 CHAT_APP_BUNDLE_NAME="${CHAT_APP_BUNDLE_NAME:-${CHAT_APP_NAME}.app}"
+CHAT_ALLOW_UNTRUSTED_RELEASE="${CHAT_ALLOW_UNTRUSTED_RELEASE:-0}"
 
 usage() {
   cat <<USAGE
@@ -35,6 +36,7 @@ Options:
   --sign-identity <identity>  Use Developer ID identity for redistributable signing
   --no-notarize               Disable notarization even when signing with identity
   --notarize-required         Require notarization (fail if creds are unavailable)
+  --allow-untrusted-release   Allow uploading ad-hoc / non-notarized artifacts to release
   --no-create                 Fail if the target repo does not already exist
   -h, --help                  Show this help
 USAGE
@@ -126,6 +128,10 @@ while [[ $# -gt 0 ]]; do
       CHAT_NOTARIZE_MODE="required"
       shift
       ;;
+    --allow-untrusted-release)
+      CHAT_ALLOW_UNTRUSTED_RELEASE=1
+      shift
+      ;;
     --no-create)
       CHAT_ALLOW_CREATE=0
       shift
@@ -144,6 +150,73 @@ done
 
 log() {
   printf '\n[%s] %s\n' "publish-chat-repo" "$*"
+}
+
+verify_release_artifact_trust() {
+  local artifact="$1"
+  local suffix app_mount app_path codesign_details
+
+  suffix="${artifact##*.}"
+  suffix="${suffix,,}"
+  case "$suffix" in
+    dmg)
+      require_cmd xcrun
+      require_cmd spctl
+      require_cmd hdiutil
+      require_cmd codesign
+
+      if ! spctl -a -vv -t open --context context:primary-signature "$artifact" 2>&1 | grep -Fq "source=Notarized Developer ID"; then
+        echo "Error: artifact is not Gatekeeper-accepted as Notarized Developer ID: $artifact" >&2
+        exit 1
+      fi
+
+      if ! xcrun stapler validate "$artifact" >/dev/null 2>&1; then
+        echo "Error: artifact is missing a stapled notarization ticket: $artifact" >&2
+        exit 1
+      fi
+
+      app_mount="$(mktemp -d /tmp/silicon-refinery-chat-release.XXXXXX)"
+      attached=0
+      cleanup_verify_artifact() {
+        if [[ "$attached" == "1" ]]; then
+          hdiutil detach "$app_mount" -quiet || true
+        fi
+        rmdir "$app_mount" 2>/dev/null || true
+      }
+      trap cleanup_verify_artifact RETURN
+      hdiutil attach "$artifact" -nobrowse -readonly -mountpoint "$app_mount" >/dev/null
+      attached=1
+
+      app_path="$(find "$app_mount" -maxdepth 2 -type d -name '*.app' | head -n 1 || true)"
+      if [[ -z "$app_path" || ! -d "$app_path" ]]; then
+        echo "Error: no app bundle found inside artifact: $artifact" >&2
+        exit 1
+      fi
+
+      codesign_details="$(codesign -dv --verbose=4 "$app_path" 2>&1 || true)"
+      if grep -Fq "Signature=adhoc" <<<"$codesign_details"; then
+        echo "Error: app bundle is ad-hoc signed: $app_path" >&2
+        exit 1
+      fi
+      if grep -Fq "TeamIdentifier=not set" <<<"$codesign_details"; then
+        echo "Error: app bundle TeamIdentifier is missing: $app_path" >&2
+        exit 1
+      fi
+      if ! grep -Fq "Runtime Version=" <<<"$codesign_details"; then
+        echo "Error: hardened runtime not detected in app signature: $app_path" >&2
+        exit 1
+      fi
+      if ! spctl -a -vv "$app_path" 2>&1 | grep -Fq "source=Notarized Developer ID"; then
+        echo "Error: app bundle is not Gatekeeper-accepted as Notarized Developer ID: $app_path" >&2
+        exit 1
+      fi
+      ;;
+    *)
+      echo "Error: unsupported release artifact for trust verification: $artifact" >&2
+      echo "Set CHAT_ALLOW_UNTRUSTED_RELEASE=1 (or --allow-untrusted-release) to override." >&2
+      exit 1
+      ;;
+  esac
 }
 
 has_notary_credentials() {
@@ -416,6 +489,17 @@ if [[ "$SHOULD_NOTARIZE" == "1" && "${#FOUND_ARTIFACTS[@]}" -gt 0 ]]; then
   done
 elif [[ "$SIGNING_PERFORMED" == "1" ]]; then
   log "Developer ID signing used without notarization. Installers may trigger Gatekeeper warnings."
+fi
+
+if [[ "$CHAT_SKIP_RELEASE" != "1" && "${#FOUND_ARTIFACTS[@]}" -gt 0 ]]; then
+  if [[ "$CHAT_ALLOW_UNTRUSTED_RELEASE" == "1" ]]; then
+    log "WARNING: CHAT_ALLOW_UNTRUSTED_RELEASE=1 set. Skipping trusted artifact verification."
+  else
+    log "Verifying release artifacts are trusted (Developer ID + notarized + stapled)"
+    for artifact in "${FOUND_ARTIFACTS[@]}"; do
+      verify_release_artifact_trust "$artifact"
+    done
+  fi
 fi
 
 log "Syncing source tree to child repo"
