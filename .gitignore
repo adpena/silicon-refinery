@@ -165,3 +165,8 @@ uv.lock
 
 # ruff
 .ruff_cache/
+
+# Generated artifacts
+crash_report_for_llm.txt
+*.arrow
+transcript_analyses.jsonl
