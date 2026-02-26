@@ -82,9 +82,7 @@ COLOR_TAB_IDLE = "#1A2736"
 COLOR_TAB_ACTIVE = "#29445F"
 COLOR_TRANSCRIPT_BORDER = "#2A3444"
 SIDEBAR_TITLE_TEXT = "SiliconRefineryChat"
-SIDEBAR_SUBTITLE_TEXT = (
-    "Private, on-device assistant powered by Apple Foundation Models and SQLite"
-)
+SIDEBAR_SUBTITLE_TEXT = "Private, on-device assistant powered by Apple Foundation Models and SQLite"
 COMPOSE_PLACEHOLDER = "Ask anything"
 
 
@@ -1378,7 +1376,9 @@ class SiliconRefineryChatApp(toga.App):
             style=Pack(
                 margin=(4, 12, 10, 12),
                 width=max(140, self._sidebar_width - 24),
-                height=self._text_block_height(initial_subtitle_text, FONT_SIZE_META, min_height=22),
+                height=self._text_block_height(
+                    initial_subtitle_text, FONT_SIZE_META, min_height=22
+                ),
                 font_size=FONT_SIZE_META,
                 color=COLOR_TEXT_MUTED,
             ),
