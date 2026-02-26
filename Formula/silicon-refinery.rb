@@ -1,8 +1,8 @@
 class SiliconRefinery < Formula
   desc "Zero-trust local data refinery framework for Apple Foundation Models"
   homepage "https://github.com/adpena/silicon-refinery"
-  url "https://github.com/adpena/silicon-refinery/archive/refs/tags/v0.0.214.tar.gz"
-  sha256 "0e3af338ded127522b416ac93ff66b04f6a4fc39f5611470d35c0d9bb3d644b8"
+  url "https://github.com/adpena/silicon-refinery/archive/refs/tags/v0.0.215.tar.gz"
+  sha256 "775af46f5e268e5810c373f1b27fb9c0addb641f42748f7db10e9ee65d363b03"
   license "MIT"
   head "https://github.com/adpena/silicon-refinery.git", branch: "main"
 
