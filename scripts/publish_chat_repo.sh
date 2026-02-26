@@ -201,6 +201,7 @@ rsync -a --delete \
   --exclude '.git/' \
   --exclude '.venv/' \
   --exclude '.briefcase/' \
+  --exclude 'artifacts/' \
   --exclude 'build/' \
   --exclude 'dist/' \
   --exclude 'logs/' \
@@ -233,6 +234,9 @@ log "Committing and pushing changes (if any)"
 if [[ ! -d "$CHAT_REPO_DIR/.git" ]]; then
   echo "Error: expected child checkout at $CHAT_REPO_DIR to contain .git" >&2
   exit 1
+fi
+if [[ -n "${GH_TOKEN:-}" ]]; then
+  git -C "$CHAT_REPO_DIR" remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${CHAT_REPO}.git"
 fi
 ORIGIN_URL="$(git -C "$CHAT_REPO_DIR" remote get-url origin 2>/dev/null || true)"
 if [[ "$ORIGIN_URL" != *"$CHAT_REPO"* ]]; then
