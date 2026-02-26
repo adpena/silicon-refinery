@@ -50,9 +50,9 @@ jobs:
           PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
           if [ -n "${PYPI_API_TOKEN}" ]; then
-            uv publish --token "${PYPI_API_TOKEN}" dist/*
+            uv publish --token "${PYPI_API_TOKEN}" --check-url "https://pypi.org/simple/" dist/*
           else
-            uv publish --trusted-publishing always dist/*
+            uv publish --trusted-publishing always --check-url "https://pypi.org/simple/" dist/*
           fi
 
   tag:
