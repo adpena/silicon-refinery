@@ -64,7 +64,7 @@ async def stream_extract(
     instructions: str = "Extract data.",
     lines_per_chunk: int = 1,
     history_mode: Literal["clear", "keep", "hybrid", "compact"] = "clear",
-    concurrency: int = 1,
+    concurrency: int | None = None,
     debug_timing: bool = False,
 ) -> AsyncGenerator[T, None]:
     """
@@ -81,21 +81,25 @@ async def stream_extract(
             - 'keep': Retains session history. May throw ExceededContextWindowSizeError on large streams.
             - 'hybrid': Retains history, but if ExceededContextWindowSizeError occurs, clears it and retries.
             - 'compact': Retains history, but when reaching limits or periodically, summarizes history.
-        concurrency (int, optional): Number of parallel extraction tasks to run. If > 1, chunks are processed
-                                     concurrently and yielded out-of-order (like imap_unordered).
-                                     Forces history_mode='clear'. Defaults to 1.
+        concurrency (int | None, optional): Number of parallel extraction tasks to run. Defaults to `os.cpu_count()`.
+                                     If > 1, chunks are processed concurrently and yielded out-of-order (like imap_unordered).
+                                     Forces history_mode='clear'.
         debug_timing (bool, optional): If True, logs processing time and throughput for each chunk.
 
     Yields:
         schema: The populated structured object.
     """
     import asyncio
+    import os
 
     model = fm.SystemLanguageModel()
 
+    if concurrency is None:
+        concurrency = os.cpu_count() or 1
+
     if concurrency > 1 and history_mode != "clear":
         logger.warning(
-            "[SiliconRefinery Stream] Concurrency > 1 requires isolated sessions. Forcing history_mode='clear'."
+            f"[SiliconRefinery Stream] Concurrency ({concurrency}) > 1 requires isolated sessions. Forcing history_mode='clear'."
         )
         history_mode = "clear"
 

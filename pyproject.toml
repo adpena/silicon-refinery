@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "silicon_refinery"
-version = "0.0.201"
+version = "0.0.203"
 description = "A Zero-Trust Local Data Refinery Framework built on Apple Foundation Models SDK."
 readme = "README.md"
 requires-python = ">=3.10"

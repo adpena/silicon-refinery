@@ -55,7 +55,7 @@ By running massive unstructured datasets through on-device intelligence, `Silico
 
 ---
 
-## 🛠️ The 6 Pillars of SiliconRefinery
+## 🛠️ The 7 Pillars of SiliconRefinery
 
 `SiliconRefinery` abstract away the raw SDK interactions into elegant, battle-tested patterns.
 
@@ -81,14 +81,28 @@ record = await parse_doctor_notes("Severe migraines and nausea for 4 days. ER im
 print(record.suggested_triage) # -> "HIGH"
 ```
 
-### 2. Concurrent Async Streams (`stream_extract`)
+### 2. The `@enhanced_debug` Decorator (AI Crash Analysis)
+Wrap any function to automatically catch exceptions, dump the traceback, and invoke the Neural Engine to perform a detailed root-cause analysis! It provides a certainty level, suggested fixes, and optionally dumps a formatted payload to file to easily feed into more powerful coding agents like Codex or Claude.
+
+```python
+from silicon_refinery import enhanced_debug
+
+@enhanced_debug(route_to="stdout", prompt_file="crash_report_for_llm.txt")
+def divide_data(a, b):
+    return a / b
+
+# Will catch the ZeroDivisionError, print the traceback, and use the local AI to explain why it failed!
+divide_data(10, 0) 
+```
+
+### 3. Concurrent Async Streams (`stream_extract`)
 Process gigabytes of data lazily using asynchronous generators. This function includes built-in line-level chunking (`lines_per_chunk`), advanced context window management (`history_mode`), and native **concurrency**.
 
 ```python
 from silicon_refinery import stream_extract
 
-# concurrency > 1 automatically spawns parallel tasks and yields 
-# structured objects out-of-order, similar to `imap_unordered`!
+# concurrency defaults to os.cpu_count(). It automatically spawns parallel tasks 
+# and yields structured objects out-of-order, exactly like `imap_unordered`!
 # 'compact' history_mode asks the LLM to summarize previous context to prevent overflow.
 async for enriched in stream_extract(
     review_stream, 
@@ -96,13 +110,12 @@ async for enriched in stream_extract(
     instructions="Analyze sentiment.", 
     lines_per_chunk=5,
     history_mode='clear',
-    concurrency=4, 
     debug_timing=True
 ):
     await db.insert(enriched)
 ```
 
-### 3. FastAPI Integration (Local AI Microservices)
+### 4. FastAPI Integration (Local AI Microservices)
 Spin up an instantaneous, secure local REST API powered by the Neural Engine.
 *(See `use_cases/06_fastapi_integration/` for full example).*
 
@@ -118,7 +131,7 @@ async def extract_data(text: str):
     return await parse_doctor_notes(text)
 ```
 
-### 4. The Polars Ecosystem Extension
+### 5. The Polars Ecosystem Extension
 Run zero-cost local inference directly inside a Rust-backed Polars DataFrame using our `.local_llm` namespace.
 *(See `use_cases/04_ecosystem_polars/` for full example).*
 
@@ -134,7 +147,7 @@ enriched_df = df.with_columns(
 )
 ```
 
-### 5. Composable Pipeline Operators (`>>`)
+### 6. Composable Pipeline Operators (`>>`)
 Use UNIX-style bitwise operators to construct declarative ETL pipelines.
 *(See `use_cases/01_pipeline_operators/` for full example).*
 
@@ -150,7 +163,7 @@ pipeline = (
 await pipeline.execute()
 ```
 
-### 6. DSPy Provider Integration (Agentic Swarms)
+### 7. DSPy Provider Integration (Agentic Swarms)
 Initialize DSPy with our custom `AppleFMLM` provider to use robust agent swarms and prompt compilers on free Apple hardware.
 *(See `use_cases/05_dspy_optimization/` for full example).*
 
@@ -188,6 +201,7 @@ During our payload escalation test, the local foundation model flawlessly proces
 ## 🔮 Future Work: The Pythonic Frontier
 
 While `SiliconRefinery` is built with robust typing, dataclasses, generic `TypeVar` extractors, and concurrent async generators, there is more magic to unlock as the Python ecosystem evolves:
+- **IO & Protocol Wrappers:** We are exploring building native adapters for `BytesIO` streams, `multiprocessing` arrays, and real-time `websockets` to feed the Neural Engine from any source.
 - **Free-Threading & Subinterpreters (PEP 703/684):** Python 3.13+ introduces experimental features that bypass the GIL. `SiliconRefinery`'s `stream_extract(concurrency=X)` implementation is architected to natively exploit the `python3.13t` free-threaded interpreter, potentially allowing parallel Foundation Model C-extensions to run truly concurrently on separate M-series cores without Python-level locking.
 - **JIT Compilation (PEP 744):** The new copy-and-patch JIT in Python (enabled via `PYTHON_JIT=1`) can drastically reduce overhead during massive Polars/Pandas map-batch conversions or when managing thousands of asynchronous tasks.
 
