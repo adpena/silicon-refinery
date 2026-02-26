@@ -90,18 +90,18 @@ SiliconRefinery flips the paradigm:
 For the simplest setup UX/DX, pick one:
 
 ```bash
-# 1) PyPI (library + CLI in a virtual environment)
-python3 -m venv .venv
+# 1) PyPI + uv (library + CLI in a project virtual environment)
+uv venv --python 3.13 .venv
 source .venv/bin/activate
-pip install -U silicon-refinery
-pip install -U "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git"
+uv pip install -U silicon-refinery
+uv pip install -U "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git"
 
 # Verify
 silicon-refinery doctor
 ```
 
 ```bash
-# 2) Homebrew (CLI + standalone desktop app)
+# 2) Homebrew (CLI + standalone desktop app, minimal flow)
 brew tap adpena/silicon-refinery https://github.com/adpena/homebrew-silicon-refinery
 brew install --HEAD adpena/silicon-refinery/silicon-refinery
 brew install --cask adpena/silicon-refinery/silicon-refinery-chat
@@ -174,24 +174,9 @@ uv sync --project examples/toga_local_chat_app --directory examples/toga_local_c
 
 ### PyPI and Homebrew install story
 
-- **PyPI:** `silicon-refinery` is published on PyPI for both Python imports and CLI usage.
-- **Apple FM SDK dependency:** install `apple-fm-sdk` from GitHub (`pip install "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git"`), because upstream is still GitHub-sourced.
-- **Best automation path for local development:** clone this repo and run `./scripts/setup.sh` (or `uv sync --all-groups`) to bootstrap everything in one flow.
-- **Homebrew tap:** `adpena/homebrew-silicon-refinery`
-
-```bash
-# Tap once
-brew tap adpena/silicon-refinery https://github.com/adpena/homebrew-silicon-refinery
-
-# Install CLI formula
-brew install --HEAD adpena/silicon-refinery/silicon-refinery
-
-# Install standalone desktop app (.app via cask)
-brew install --cask adpena/silicon-refinery/silicon-refinery-chat
-
-# Verify
-silicon-refinery --help
-```
+- **PyPI:** `silicon-refinery` is published for Python imports + CLI usage.
+- **Apple FM SDK:** still GitHub-sourced, so install via `uv pip install "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git"` (or run `uv sync --all-groups`).
+- **Homebrew tap:** `adpena/homebrew-silicon-refinery` provides both the CLI formula and chat app cask with a single tap.
 
 ### Homebrew maintainer release flow
 
@@ -920,7 +905,7 @@ See [`datasets/README.md`](datasets/README.md) for details. Datasets were create
 
 ## Benchmarks & Empirical Results
 
-We don't just build; we measure. Two dedicated use cases profile SiliconRefinery's performance characteristics.
+Two dedicated use cases profile SiliconRefinery's performance characteristics.
 
 ### Test environment
 
