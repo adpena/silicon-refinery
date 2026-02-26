@@ -35,36 +35,76 @@ silicon-refinery-chat
 ```
 
 ```python
-# Polars-native structured extraction on-device
+# Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
 import polars as pl
+import apple_fm_sdk as fm
 from silicon_refinery.polars_ext import LocalLLMExpr  # registers .local_llm
+
+@fm.generable()
+class TicketSchema:
+    category: str = fm.guide(anyOf=["Billing", "Technical", "Account", "Other"])
+    urgency: str = fm.guide(anyOf=["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+
+df = pl.DataFrame(
+    {
+        "text_column": [
+            "I cannot log in to my account after enabling two-factor authentication."
+        ]
+    }
+)
 
 enriched_df = df.with_columns(
     extracted_json=pl.col("text_column").local_llm.extract(
-        schema=YourSchema,
+        schema=TicketSchema,
         instructions="Extract only fields required by the schema.",
     )
 )
+print(enriched_df.select(["text_column", "extracted_json"]).to_dicts())
+# Actual output:
+# [{'text_column': 'I cannot log in to my account after enabling two-factor authentication.',
+#   'extracted_json': '{"category": "Account", "urgency": "HIGH"}'}]
 ```
 
 ```python
-# Local AI crash analysis with explicit output routing
+# Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
 from silicon_refinery import enhanced_debug
 
 @enhanced_debug(summary_to="stderr", prompt_to="stdout", silenced=False)
 def process_data(payload):
     return payload["value"] + 10
+
+print(process_data({"value": 10}))
+# Actual output:
+# 20
 ```
 
 ```python
+# Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
+import asyncio
+import apple_fm_sdk as fm
 from silicon_refinery import local_extract
+
+@fm.generable()
+class SupportTicket:
+    category: str = fm.guide(anyOf=["Billing", "Technical", "Account", "Other"])
+    urgency: str = fm.guide(anyOf=["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+    summary: str = fm.guide(description="One-sentence summary of the issue")
 
 @local_extract(schema=SupportTicket, debug_timing=True)
 async def classify(email: str) -> SupportTicket:
     """Classify a customer support email by category, urgency, and summary."""
 
-ticket = await classify("I was charged twice and I need a refund!")
-# -> SupportTicket(category="Billing", urgency="HIGH", summary="Duplicate charge refund request")
+async def main():
+    ticket = await classify("I was charged twice and I need a refund immediately.")
+    print(f"category={ticket.category}")
+    print(f"urgency={ticket.urgency}")
+    print(f"summary={ticket.summary}")
+
+asyncio.run(main())
+# Actual output:
+# category=Billing
+# urgency=HIGH
+# summary=Customer was charged twice and needs immediate refund
 ```
 
 No API keys or cloud calls are required for local inference.
@@ -329,9 +369,14 @@ silicon-refinery doctor
 import silicon_refinery
 import apple_fm_sdk as fm
 
+# Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
 model = fm.SystemLanguageModel()
 available, reason = model.is_available()
-print(f"Neural Engine available: {available}")  # -> True on macOS 26+ with Apple Silicon
+print(f"Neural Engine available: {available}")
+print(f"Reason: {reason}")
+# Actual output:
+# Neural Engine available: True
+# Reason: None
 ```
 
 ---
@@ -343,6 +388,7 @@ Three steps to go from unstructured text to a validated Python object:
 **1. Define a schema** using the Apple FM SDK's `@generable()` decorator:
 
 ```python
+# This snippet is runnable as-is.
 import apple_fm_sdk as fm
 
 @fm.generable()
@@ -355,7 +401,15 @@ class SupportTicket:
 **2. Decorate a function** with `@local_extract`. The function's **docstring becomes the system prompt**:
 
 ```python
+# This snippet is runnable as-is.
+import apple_fm_sdk as fm
 from silicon_refinery import local_extract
+
+@fm.generable()
+class SupportTicket:
+    category: str = fm.guide(anyOf=["Billing", "Technical", "Account", "Other"])
+    urgency: str = fm.guide(anyOf=["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+    summary: str = fm.guide(description="One-sentence summary of the issue")
 
 @local_extract(schema=SupportTicket, debug_timing=True)
 async def classify_ticket(email_text: str) -> SupportTicket:
@@ -366,16 +420,33 @@ async def classify_ticket(email_text: str) -> SupportTicket:
 
 ```python
 import asyncio
+import apple_fm_sdk as fm
+from silicon_refinery import local_extract
 
+@fm.generable()
+class SupportTicket:
+    category: str = fm.guide(anyOf=["Billing", "Technical", "Account", "Other"])
+    urgency: str = fm.guide(anyOf=["LOW", "MEDIUM", "HIGH", "CRITICAL"])
+    summary: str = fm.guide(description="One-sentence summary of the issue")
+
+@local_extract(schema=SupportTicket, debug_timing=False)
+async def classify_ticket(email_text: str) -> SupportTicket:
+    """Classify a customer support email by category, urgency, and summary."""
+
+# Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
 async def main():
     ticket = await classify_ticket(
         "I was charged twice this month and I need a refund immediately!"
     )
-    print(ticket.category)  # "Billing"
-    print(ticket.urgency)   # "HIGH"
-    print(ticket.summary)   # "Customer requests refund for duplicate charge"
+    print(ticket.category)
+    print(ticket.urgency)
+    print(ticket.summary)
 
 asyncio.run(main())
+# Actual output:
+# Billing
+# HIGH
+# Customer was charged twice this month and is requesting an immediate refund.
 ```
 
 The decorated function intercepts your arguments, sends them to the on-device model, enforces the schema via `@generable()`, and returns a validated `SupportTicket` object.
