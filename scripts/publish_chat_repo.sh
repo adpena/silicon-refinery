@@ -40,6 +40,49 @@ Options:
 USAGE
 }
 
+inject_chat_launcher_shim() {
+  local bundle_dir="$APP_DIR/build/silicon_refinery_chat/macos/app/$CHAT_APP_BUNDLE_NAME"
+  local resources_dir="$bundle_dir/Contents/Resources"
+  local launcher_path="$resources_dir/silicon-refinery-chat"
+
+  if [[ ! -d "$resources_dir" ]]; then
+    echo "Error: expected macOS app bundle at $bundle_dir" >&2
+    exit 1
+  fi
+
+  cat >"$launcher_path" <<'SH'
+#!/bin/sh
+set -eu
+
+resolve_path() {
+  local path="$1"
+  while [ -L "$path" ]; do
+    local link_target
+    link_target="$(readlink "$path")"
+    case "$link_target" in
+      /*) path="$link_target" ;;
+      *) path="$(cd "$(dirname "$path")" && pwd)/$link_target" ;;
+    esac
+  done
+  printf '%s\n' "$path"
+}
+
+SOURCE_PATH="$(resolve_path "$0")"
+SCRIPT_DIR="$(cd "$(dirname "$SOURCE_PATH")" && pwd)"
+APP_BUNDLE="$(cd "$SCRIPT_DIR/../.." && pwd)"
+exec /usr/bin/open -a "$APP_BUNDLE" --args "$@"
+SH
+
+  chmod +x "$launcher_path"
+}
+
+cleanup_stale_chat_launcher_shims() {
+  local bundle_dir="$APP_DIR/build/silicon_refinery_chat/macos/app/$CHAT_APP_BUNDLE_NAME"
+  rm -f \
+    "$bundle_dir/Contents/MacOS/silicon-refinery-chat" \
+    "$bundle_dir/Contents/Resources/silicon-refinery-chat"
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repo)
@@ -269,7 +312,9 @@ if [[ "$CHAT_SKIP_BUILD" != "1" ]]; then
   else
     uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase create macOS --no-input
   fi
+  cleanup_stale_chat_launcher_shims
   uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase build macOS --no-input
+  inject_chat_launcher_shim
 
   BRIEFCASE_PACKAGE_ARGS=(package macOS --no-input)
   case "$CHAT_SIGN_MODE" in

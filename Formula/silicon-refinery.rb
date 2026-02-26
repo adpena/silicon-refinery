@@ -1,11 +1,9 @@
 class SiliconRefinery < Formula
   desc "Zero-trust local data refinery framework for Apple Foundation Models"
   homepage "https://github.com/adpena/silicon-refinery"
+  url "https://github.com/adpena/silicon-refinery/archive/refs/tags/v0.0.210.tar.gz"
+  sha256 "e8a4922cc42e8980097f9d80e6bfac5f52a6e02d163c595c1d7b0b130fb8f486"
   license "MIT"
-
-  url "https://github.com/adpena/silicon-refinery/archive/refs/tags/v0.0.209.tar.gz"
-  sha256 "7cabf835867bff8c543b8a7f5944746c21407d5c5420f0540ac057bd569b533e"
-  version "0.0.209"
   head "https://github.com/adpena/silicon-refinery.git", branch: "main"
 
   depends_on "uv"
@@ -15,6 +13,9 @@ class SiliconRefinery < Formula
 
     (bin/"silicon-refinery").write <<~SH
       #!/bin/sh
+      if [ ! -f "#{libexec}/README.md" ] && [ -f "#{prefix}/README.md" ]; then
+        ln -sf "#{prefix}/README.md" "#{libexec}/README.md"
+      fi
       exec "#{Formula["uv"].opt_bin}/uv" run --project "#{libexec}" --directory "#{libexec}" silicon-refinery "$@"
     SH
   end
