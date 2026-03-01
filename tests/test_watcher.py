@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.watcher — Hot Folder Daemon.
+Tests for fmtools.watcher — Hot Folder Daemon.
 
 Covers:
   - New file detection
@@ -21,7 +21,7 @@ import os
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from silicon_refinery.watcher import FileEvent, HotFolder, process_folder
+from fmtools.watcher import FileEvent, HotFolder, process_folder
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -358,7 +358,7 @@ class TestProcessFolderExtractsAndYields:
                 yield FileEvent(path=target, event_type="modified", timestamp=0.0)
 
         with (
-            patch("silicon_refinery.watcher.HotFolder", FakeHotFolder),
+            patch("fmtools.watcher.HotFolder", FakeHotFolder),
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
@@ -409,7 +409,7 @@ class TestProcessFolderExtractsAndYields:
                 yield FileEvent(path=target, event_type="modified", timestamp=1.0)
 
         with (
-            patch("silicon_refinery.watcher.HotFolder", FakeHotFolder),
+            patch("fmtools.watcher.HotFolder", FakeHotFolder),
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
@@ -458,7 +458,7 @@ class TestProcessFolderExtractsAndYields:
                 yield FileEvent(path=good_file, event_type="created", timestamp=1.0)
 
         with (
-            patch("silicon_refinery.watcher.HotFolder", FakeHotFolder),
+            patch("fmtools.watcher.HotFolder", FakeHotFolder),
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
@@ -506,7 +506,7 @@ class TestProcessFolderExtractsAndYields:
                 yield FileEvent(path=target, event_type="created", timestamp=0.0)
 
         with (
-            patch("silicon_refinery.watcher.HotFolder", FakeHotFolder),
+            patch("fmtools.watcher.HotFolder", FakeHotFolder),
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
             patch("pathlib.Path.write_text", side_effect=OSError("disk full")),

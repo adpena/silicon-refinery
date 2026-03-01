@@ -1,5 +1,5 @@
 """
-Comprehensive tests for silicon_refinery.polars_ext (LocalLLMExpr).
+Comprehensive tests for fmtools.polars_ext (LocalLLMExpr).
 
 Covers:
   - Polars namespace registration
@@ -18,7 +18,7 @@ import polars as pl
 import pytest
 
 # We must import polars_ext to trigger the @register_expr_namespace side effect
-import silicon_refinery.polars_ext as polars_ext
+import fmtools.polars_ext as polars_ext
 
 from .conftest import MockSchema, make_mock_model
 
@@ -77,9 +77,9 @@ class TestLocalLLMTimeoutHandling:
             return future
 
         with (
-            patch("silicon_refinery.polars_ext.create_model", return_value=MagicMock()),
+            patch("fmtools.polars_ext.create_model", return_value=MagicMock()),
             patch(
-                "silicon_refinery.polars_ext.asyncio.run_coroutine_threadsafe",
+                "fmtools.polars_ext.asyncio.run_coroutine_threadsafe",
                 side_effect=fake_run_coroutine_threadsafe,
             ),
         ):
@@ -102,9 +102,9 @@ class TestLocalLLMTimeoutHandling:
             return future
 
         with (
-            patch("silicon_refinery.polars_ext.create_model", return_value=MagicMock()),
+            patch("fmtools.polars_ext.create_model", return_value=MagicMock()),
             patch(
-                "silicon_refinery.polars_ext.asyncio.run_coroutine_threadsafe",
+                "fmtools.polars_ext.asyncio.run_coroutine_threadsafe",
                 side_effect=fake_run_coroutine_threadsafe,
             ),
         ):

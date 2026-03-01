@@ -1,5 +1,5 @@
 """
-Trio adapter example for SiliconRefinery.
+Trio adapter example for FMTools.
 
 Demonstrates ``TrioAdapter`` against a trio-style receive channel interface.
 """
@@ -11,7 +11,7 @@ import asyncio
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery.adapters import TrioAdapter
+    from fmtools.adapters import TrioAdapter
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("trio_adapter.py", exc)
 

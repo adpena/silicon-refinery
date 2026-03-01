@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from silicon_refinery._context import get_session, session_scope
-from silicon_refinery.async_generators import stream_extract
-from silicon_refinery.decorators import local_extract
-from silicon_refinery.pipeline import Extract, Pipeline, Sink, Source
-from silicon_refinery.protocols import get_backend, set_backend
+from fmtools._context import get_session, session_scope
+from fmtools.async_generators import stream_extract
+from fmtools.decorators import local_extract
+from fmtools.pipeline import Extract, Pipeline, Sink, Source
+from fmtools.protocols import get_backend, set_backend
 
 from .conftest import MockSchema
 

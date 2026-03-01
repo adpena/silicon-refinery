@@ -2,7 +2,7 @@ import csv
 
 import dspy
 
-from silicon_refinery.dspy_ext import AppleFMLM
+from fmtools.dspy_ext import AppleFMLM
 
 
 # A DSPy module for generating summaries and classifying

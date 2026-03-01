@@ -1,5 +1,5 @@
 """
-Comprehensive tests for silicon_refinery.async_generators (stream_extract).
+Comprehensive tests for fmtools.async_generators (stream_extract).
 
 Covers:
   - _chunk_lines and _achunk_lines helpers
@@ -19,7 +19,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.async_generators import (
+from fmtools.async_generators import (
     _achunk_lines,
     _chunk_lines,
     _compact_history,
@@ -409,7 +409,7 @@ class TestStreamExtractConcurrency:
         """When concurrency > 1 and history_mode != 'clear', it forces clear and warns."""
         data = ["A", "B"]
 
-        with caplog.at_level(logging.WARNING, logger="silicon_refinery"):
+        with caplog.at_level(logging.WARNING, logger="fmtools"):
             results = []
             async for item in stream_extract(
                 data, schema=MockSchema, history_mode="keep", concurrency=2
@@ -535,7 +535,7 @@ class TestStreamExtractConcurrencyErrors:
 
 class TestStreamExtractDebugTiming:
     async def test_timing_log_emitted(self, mock_fm_available, caplog):
-        with caplog.at_level(logging.INFO, logger="silicon_refinery"):
+        with caplog.at_level(logging.INFO, logger="fmtools"):
             async for _ in stream_extract(
                 ["data"], schema=MockSchema, debug_timing=True, concurrency=1
             ):
@@ -545,7 +545,7 @@ class TestStreamExtractDebugTiming:
         assert any("Throughput:" in r.message for r in caplog.records)
 
     async def test_no_timing_log_when_disabled(self, mock_fm_available, caplog):
-        with caplog.at_level(logging.INFO, logger="silicon_refinery"):
+        with caplog.at_level(logging.INFO, logger="fmtools"):
             async for _ in stream_extract(
                 ["data"], schema=MockSchema, debug_timing=False, concurrency=1
             ):

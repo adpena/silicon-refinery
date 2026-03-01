@@ -3,7 +3,7 @@ import csv
 
 import apple_fm_sdk as fm
 
-from silicon_refinery import stream_extract
+from fmtools import stream_extract
 
 
 @fm.generable()

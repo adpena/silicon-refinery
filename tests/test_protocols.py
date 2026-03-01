@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.protocols — pluggable backend protocols.
+Tests for fmtools.protocols — pluggable backend protocols.
 
 Covers:
   - Runtime-checkable protocol verification
@@ -11,7 +11,7 @@ Covers:
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from silicon_refinery.protocols import (
+from fmtools.protocols import (
     AppleFMBackend,
     AppleFMModel,
     AppleFMSession,
@@ -31,11 +31,11 @@ from silicon_refinery.protocols import (
 
 class TestLazySDKImport:
     def test_apple_model_imports_sdk_lazily(self):
-        import silicon_refinery.protocols as protocols_mod
+        import fmtools.protocols as protocols_mod
 
         protocols_mod._import_apple_fm_sdk.cache_clear()
         try:
-            with patch("silicon_refinery.protocols.importlib.import_module") as import_module:
+            with patch("fmtools.protocols.importlib.import_module") as import_module:
                 sdk = MagicMock()
                 sdk.SystemLanguageModel.return_value = MagicMock(
                     is_available=MagicMock(return_value=(True, None))
@@ -156,7 +156,7 @@ class TestSetGetBackend:
     def test_default_backend_is_apple_fm(self):
         """The default backend should be an AppleFMBackend instance."""
         # Reset to default by importing a fresh module state
-        import silicon_refinery.protocols as mod
+        import fmtools.protocols as mod
 
         original = mod._backend
         try:
@@ -208,7 +208,7 @@ class TestCreateHelpers:
         backend2.return_value = MagicMock()
 
         backends = iter([backend1, backend2])
-        monkeypatch.setattr("silicon_refinery.protocols.get_backend", lambda: next(backends))
+        monkeypatch.setattr("fmtools.protocols.get_backend", lambda: next(backends))
 
         created = create_session("hello")
         assert created is backend1_session

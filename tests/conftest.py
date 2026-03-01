@@ -1,8 +1,8 @@
 """
-Shared fixtures and mock factories for the SiliconRefinery test suite.
+Shared fixtures and mock factories for the FMTools test suite.
 
 CRITICAL: The apple_fm_sdk module-level mock MUST be installed before any
-silicon_refinery modules are imported, because:
+fmtools modules are imported, because:
   - debugging.py uses @fm.generable() and fm.guide() at class definition time
   - decorators.py, pipeline.py, etc. do `import apple_fm_sdk as fm` at module level
 
@@ -14,7 +14,7 @@ import sys
 from unittest.mock import AsyncMock, MagicMock, patch
 
 # ---------------------------------------------------------------------------
-# Install a fake apple_fm_sdk into sys.modules BEFORE any silicon_refinery
+# Install a fake apple_fm_sdk into sys.modules BEFORE any fmtools
 # imports happen.  This is the single most important line in the test suite.
 # ---------------------------------------------------------------------------
 _mock_fm = MagicMock()

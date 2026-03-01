@@ -1,11 +1,11 @@
 """
-Pluggable backend protocols for SiliconRefinery.
+Pluggable backend protocols for FMTools.
 
 Defines structural subtyping (typing.Protocol) interfaces so the framework can
 work with any backend that satisfies the contract, not just Apple FM SDK.
 
 Usage:
-    from silicon_refinery.protocols import set_backend, get_backend
+    from fmtools.protocols import set_backend, get_backend
 
     # Default: AppleFMBackend wrapping apple_fm_sdk
     backend = get_backend()
@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast, runtime_checkabl
 if TYPE_CHECKING:
     from collections.abc import Awaitable
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 T = TypeVar("T")
 
@@ -141,7 +141,7 @@ def set_backend(backend: Any) -> None:
     """Replace the active backend (module-level singleton)."""
     global _backend
     _backend = backend
-    logger.info("[SiliconRefinery] Backend set to %s", type(backend).__name__)
+    logger.info("[FMTools] Backend set to %s", type(backend).__name__)
 
 
 def get_backend() -> Any:

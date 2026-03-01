@@ -1,5 +1,5 @@
 """
-Context scoping example for SiliconRefinery.
+Context scoping example for FMTools.
 
 Demonstrates task-local session/model access via `session_scope(...)`.
 """
@@ -11,8 +11,8 @@ import asyncio
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery._context import get_instructions, get_model, get_session, session_scope
-    from silicon_refinery.protocols import get_backend, set_backend
+    from fmtools._context import get_instructions, get_model, get_session, session_scope
+    from fmtools.protocols import get_backend, set_backend
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("context_scope.py", exc)
 

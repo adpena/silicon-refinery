@@ -7,7 +7,7 @@ from typing import Literal, TypeVar, Union, cast
 
 from .protocols import ModelProtocol, SessionProtocol, create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 T = TypeVar("T")
 
@@ -46,7 +46,7 @@ async def _compact_history(
     context without blowing up the context window limit.
     """
     logger.info(
-        "[SiliconRefinery Stream] Compacting session history to prevent context window explosion..."
+        "[FMTools Stream] Compacting session history to prevent context window explosion..."
     )
     try:
         # We ask the model to summarize its own context
@@ -59,7 +59,7 @@ async def _compact_history(
         return new_session
     except Exception as e:
         logger.warning(
-            f"[SiliconRefinery Stream] History compaction failed: {e}. Falling back to clean session."
+            f"[FMTools Stream] History compaction failed: {e}. Falling back to clean session."
         )
         return create_session(instructions=instructions, model=model)
 
@@ -105,7 +105,7 @@ async def stream_extract(
 
     if concurrency > 1 and history_mode != "clear":
         logger.warning(
-            f"[SiliconRefinery Stream] Concurrency ({concurrency}) > 1 requires isolated sessions. Forcing history_mode='clear'."
+            f"[FMTools Stream] Concurrency ({concurrency}) > 1 requires isolated sessions. Forcing history_mode='clear'."
         )
         history_mode = "clear"
 
@@ -221,7 +221,7 @@ async def _process_chunk(
             chunk_len = len(payload)
             chars_per_sec = chunk_len / elapsed if elapsed > 0 else 0
             logger.info(
-                f"[SiliconRefinery Stream] Chunk processed in {elapsed:.3f}s. "
+                f"[FMTools Stream] Chunk processed in {elapsed:.3f}s. "
                 f"Size: {chunk_len} chars. Throughput: {chars_per_sec:.0f} chars/sec."
             )
 
@@ -236,7 +236,7 @@ async def _process_chunk(
         ):
             if history_mode == "hybrid":
                 logger.info(
-                    "[SiliconRefinery Stream] Context window exceeded in 'hybrid' mode. Clearing history and retrying chunk..."
+                    "[FMTools Stream] Context window exceeded in 'hybrid' mode. Clearing history and retrying chunk..."
                 )
                 session = create_session(instructions=instructions, model=model)
                 return await _process_chunk(
@@ -250,5 +250,5 @@ async def _process_chunk(
                     model, session, instructions, chunk, schema, "keep", debug_timing
                 )  # retry with keep so we don't loop infinitely if compact fails
 
-        logger.error(f"[SiliconRefinery Stream] Failed to process chunk. Error: {e}")
+        logger.error(f"[FMTools Stream] Failed to process chunk. Error: {e}")
         raise

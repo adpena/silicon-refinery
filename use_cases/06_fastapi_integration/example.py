@@ -5,12 +5,12 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(
-    title="SiliconRefinery Data Extraction API",
+    title="FMTools Data Extraction API",
     description="A hyper-secure, zero-cloud REST API powered by Apple Silicon Neural Engine.",
     version="0.0.1",
 )
@@ -47,7 +47,7 @@ async def extract_data(request: ExtractionRequest):
     Data is processed entirely on the local Apple Silicon Neural Engine.
     """
     try:
-        # Call our SiliconRefinery decorated function
+        # Call our FMTools decorated function
         result = await process_document(request.document_text)
 
         # Convert the generable class to a dict for the JSON response
@@ -64,7 +64,7 @@ async def extract_data(request: ExtractionRequest):
 
 
 if __name__ == "__main__":
-    print("🚀 Starting SiliconRefinery API on http://localhost:8000")
+    print("🚀 Starting FMTools API on http://localhost:8000")
     print(
         "Try sending a POST request to http://localhost:8000/api/v1/extract with JSON body: {'document_text': '...'}"
     )

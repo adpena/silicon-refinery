@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.adapters — IO Protocol Wrappers.
+Tests for fmtools.adapters — IO Protocol Wrappers.
 
 Covers: FileAdapter, CSVAdapter, JSONLAdapter, IterableAdapter,
         TextChunkAdapter, StdinAdapter, and the DataAdapter protocol.
@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from silicon_refinery.adapters import (
+from fmtools.adapters import (
     CSVAdapter,
     DataAdapter,
     FileAdapter,
@@ -186,7 +186,7 @@ class TestIterableAdapter:
         real_sleep = asyncio.sleep
 
         with patch(
-            "silicon_refinery.adapters.asyncio.sleep",
+            "fmtools.adapters.asyncio.sleep",
             new=AsyncMock(side_effect=real_sleep),
         ) as sleep_mock:
             items = [item async for item in adapter]

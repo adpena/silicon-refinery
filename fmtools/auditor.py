@@ -1,5 +1,5 @@
 """
-Code Auditor for SiliconRefinery.
+Code Auditor for FMTools.
 
 An on-device code review tool that uses the Foundation Model to analyse Python
 source files. It reads code, sends it to the FM with structured audit
@@ -18,7 +18,7 @@ from typing import Any, Literal
 
 from .protocols import create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 __all__ = [
     "AuditIssue",
@@ -313,7 +313,7 @@ def format_audit_report(results: list[AuditResult]) -> str:
     """
     lines: list[str] = []
     lines.append("=" * 72)
-    lines.append("  SiliconRefinery Code Audit Report")
+    lines.append("  FMTools Code Audit Report")
     lines.append("=" * 72)
     lines.append("")
 

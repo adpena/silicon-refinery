@@ -1,7 +1,7 @@
 """
-SiliconRefinery CLI — unified development and diagnostic commands.
+FMTools CLI — unified development and diagnostic commands.
 
-Registered as `silicon-refinery` console script via pyproject.toml.
+Registered as `fmtools` console script via pyproject.toml.
 """
 
 import json
@@ -197,13 +197,13 @@ def _print_example_table(examples: list[tuple[str, str]]) -> None:
     click.secho(f"  {'Name':<28}{'Command'}", fg="cyan")
     click.secho(f"  {'─' * 27} {'─' * 42}", fg="cyan")
     for name, _path in examples:
-        click.echo(f"  {name:<28}silicon-refinery example {name}")
+        click.echo(f"  {name:<28}fmtools example {name}")
     click.echo()
     click.echo("  Notebook:")
-    click.echo("    silicon-refinery notebook")
+    click.echo("    fmtools notebook")
     click.echo()
     click.echo("  Full smoke run:")
-    click.echo("    silicon-refinery smoke")
+    click.echo("    fmtools smoke")
     click.echo()
 
 
@@ -222,9 +222,9 @@ def _run_script(name: str, extra_args: tuple[str, ...] = ()) -> None:
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(package_name="silicon-refinery")
+@click.version_option(package_name="fmtools")
 def cli() -> None:
-    """SiliconRefinery — development & diagnostic CLI for Apple Silicon ETL."""
+    """FMTools — development & diagnostic CLI for Apple Silicon ETL."""
 
 
 # ── Setup & Doctor ────────────────────────────────────────────────────────────
@@ -244,7 +244,7 @@ def setup(no_sdk: bool, extra_args: tuple[str, ...]) -> None:
 @cli.command(name="install-homebrew")
 @click.argument("tap_name", required=False)
 def install_homebrew(tap_name: str | None) -> None:
-    """Install/update SiliconRefinery via a local Homebrew tap."""
+    """Install/update FMTools via a local Homebrew tap."""
     args: tuple[str, ...] = (tap_name,) if tap_name else ()
     _run_script("install_homebrew.sh", args)
 
@@ -299,9 +299,9 @@ def format_cmd(check_only: bool, paths: tuple[str, ...]) -> None:
 @cli.command()
 @click.argument("paths", nargs=-1)
 def typecheck(paths: tuple[str, ...]) -> None:
-    """Run ty type checker (defaults to silicon_refinery/)."""
+    """Run ty type checker (defaults to fmtools/)."""
     root = _repo_root()
-    targets = list(paths) if paths else ["silicon_refinery/"]
+    targets = list(paths) if paths else ["fmtools/"]
     rc = _run(["uv", "run", "ty", "check", *targets], cwd=root)
     raise SystemExit(rc)
 
@@ -338,7 +338,7 @@ def check() -> None:
     steps = [
         ("Lint", ["uv", "run", "ruff", "check", "."]),
         ("Format check", ["uv", "run", "ruff", "format", "--check", "."]),
-        ("Type check", ["uv", "run", "ty", "check", "silicon_refinery/"]),
+        ("Type check", ["uv", "run", "ty", "check", "fmtools/"]),
         ("Tests", ["uv", "run", "pytest", "tests/", "-v"]),
     ]
     for label, cmd in steps:
@@ -395,7 +395,7 @@ def _print_use_case_table(use_cases: list[tuple[str, str, str]]) -> None:
         label = dir_name[3:].replace("_", " ").title()
         click.echo(f"  {number:<6}{label}")
     click.echo()
-    click.echo("  Run with: silicon-refinery run <number>")
+    click.echo("  Run with: fmtools run <number>")
     click.echo()
 
 
@@ -407,9 +407,9 @@ def run(list_all: bool, number: str | None) -> None:
 
     \b
     Examples:
-        silicon-refinery run 01        # Pipeline operators
-        silicon-refinery run 07        # Stress test throughput
-        silicon-refinery run --list    # Show all available use cases
+        fmtools run 01        # Pipeline operators
+        fmtools run 07        # Stress test throughput
+        fmtools run --list    # Show all available use cases
     """
     use_cases = _discover_use_cases()
 
@@ -446,9 +446,9 @@ def example_cmd(list_all: bool, name: str | None) -> None:
 
     \b
     Examples:
-        silicon-refinery example --list
-        silicon-refinery example simple_inference
-        silicon-refinery example code_auditor
+        fmtools example --list
+        fmtools example simple_inference
+        fmtools example code_auditor
     """
     examples = _discover_example_scripts()
     if list_all or name is None:
@@ -463,7 +463,7 @@ def example_cmd(list_all: bool, name: str | None) -> None:
         _print_example_table(examples)
         raise SystemExit(1)
 
-    require_apple_fm(f"silicon-refinery example {normalized}")
+    require_apple_fm(f"fmtools example {normalized}")
     _, script_path = matched[0]
     click.secho(f"\nRunning example: {normalized}\n", fg="cyan", bold=True)
     rc = _run(["uv", "run", "python", script_path], cwd=_repo_root())
@@ -499,7 +499,7 @@ def smoke(script_timeout: float, include_notebook: bool, notebook_timeout: float
     if notebook_timeout <= 0:
         raise click.BadParameter("--notebook-timeout must be > 0")
 
-    require_apple_fm("silicon-refinery smoke")
+    require_apple_fm("fmtools smoke")
     root = _repo_root()
     examples = _discover_example_scripts()
     if not examples:
@@ -532,7 +532,7 @@ def smoke(script_timeout: float, include_notebook: bool, notebook_timeout: float
     if include_notebook:
         missing, details = _missing_python_modules(["marimo"])
         _fail_missing_dependencies(
-            command_name="silicon-refinery smoke --include-notebook",
+            command_name="fmtools smoke --include-notebook",
             missing=missing,
             details=details,
             install_steps=[
@@ -570,7 +570,7 @@ def notebook(headless: bool, token: bool) -> None:
     root = _repo_root()
     missing, details = _missing_python_modules(["marimo"])
     _fail_missing_dependencies(
-        command_name="silicon-refinery notebook",
+        command_name="fmtools notebook",
         missing=missing,
         details=details,
         install_steps=[
@@ -629,11 +629,11 @@ def chat(
 
     \b
     Examples:
-        silicon-refinery chat
-        silicon-refinery chat --no-run
-        silicon-refinery chat -r
-        silicon-refinery chat --python
-        silicon-refinery chat -- --test
+        fmtools chat
+        fmtools chat --no-run
+        fmtools chat -r
+        fmtools chat --python
+        fmtools chat -- --test
     """
     root = _repo_root()
     project_dir = os.path.join(root, "examples", "toga_local_chat_app")
@@ -682,12 +682,12 @@ def chat(
 
     if run_python:
         missing, details = _missing_python_modules(
-            ["silicon_refinery_chat", "apple_fm_sdk", "toga"],
+            ["fmtools_chat", "apple_fm_sdk", "toga"],
             project_dir=project_dir,
             uv_args=runtime_uv_args,
         )
         _fail_missing_dependencies(
-            command_name="silicon-refinery chat --python",
+            command_name="fmtools chat --python",
             missing=missing,
             details=details,
             install_steps=[
@@ -697,7 +697,7 @@ def chat(
                 "uv run --project examples/toga_local_chat_app --directory examples/toga_local_chat_app briefcase dev --no-run -r",
             ],
         )
-        command_tail = ["python", "-m", "silicon_refinery_chat", *app_args]
+        command_tail = ["python", "-m", "fmtools_chat", *app_args]
     else:
         missing, details = _missing_python_modules(
             ["briefcase"],
@@ -705,7 +705,7 @@ def chat(
             uv_args=runtime_uv_args,
         )
         _fail_missing_dependencies(
-            command_name="silicon-refinery chat",
+            command_name="fmtools chat",
             missing=missing,
             details=details,
             install_steps=[
@@ -749,21 +749,21 @@ def chat(
 _COMPLETION_INSTRUCTIONS: dict[str, str] = {
     "bash": """\
 # Add to ~/.bashrc:
-eval "$(_SILICON_REFINERY_COMPLETE=bash_source silicon-refinery)"
+eval "$(_FMTOOLS_COMPLETE=bash_source fmtools)"
 
 # Or, generate a static file (faster startup):
-_SILICON_REFINERY_COMPLETE=bash_source silicon-refinery > ~/.silicon-refinery-complete.bash
-echo '. ~/.silicon-refinery-complete.bash' >> ~/.bashrc""",
+_FMTOOLS_COMPLETE=bash_source fmtools > ~/.fmtools-complete.bash
+echo '. ~/.fmtools-complete.bash' >> ~/.bashrc""",
     "zsh": """\
 # Add to ~/.zshrc:
-eval "$(_SILICON_REFINERY_COMPLETE=zsh_source silicon-refinery)"
+eval "$(_FMTOOLS_COMPLETE=zsh_source fmtools)"
 
 # Or, generate a static file (faster startup):
-_SILICON_REFINERY_COMPLETE=zsh_source silicon-refinery > ~/.silicon-refinery-complete.zsh
-echo '. ~/.silicon-refinery-complete.zsh' >> ~/.zshrc""",
+_FMTOOLS_COMPLETE=zsh_source fmtools > ~/.fmtools-complete.zsh
+echo '. ~/.fmtools-complete.zsh' >> ~/.zshrc""",
     "fish": """\
-# Add to ~/.config/fish/completions/silicon-refinery.fish:
-_SILICON_REFINERY_COMPLETE=fish_source silicon-refinery > ~/.config/fish/completions/silicon-refinery.fish""",
+# Add to ~/.config/fish/completions/fmtools.fish:
+_FMTOOLS_COMPLETE=fish_source fmtools > ~/.config/fish/completions/fmtools.fish""",
 }
 
 
@@ -777,11 +777,11 @@ def completions(shell: str) -> None:
 
     \b
     Examples:
-        silicon-refinery completions bash
-        silicon-refinery completions zsh
-        silicon-refinery completions fish
+        fmtools completions bash
+        fmtools completions zsh
+        fmtools completions fish
     """
-    env_var = "_SILICON_REFINERY_COMPLETE"
+    env_var = "_FMTOOLS_COMPLETE"
     source_type = f"{shell}_source"
 
     click.secho(f"\nShell completion for {shell}\n", fg="cyan", bold=True)
@@ -795,7 +795,7 @@ def completions(shell: str) -> None:
     click.echo()
     try:
         result = subprocess.run(
-            ["silicon-refinery"],
+            ["fmtools"],
             capture_output=True,
             text=True,
             env={**os.environ, env_var: source_type},
@@ -803,13 +803,9 @@ def completions(shell: str) -> None:
         if result.stdout:
             click.echo(result.stdout)
         else:
-            click.echo(
-                f"  (Run: {env_var}={source_type} silicon-refinery to generate the script directly)"
-            )
+            click.echo(f"  (Run: {env_var}={source_type} fmtools to generate the script directly)")
     except FileNotFoundError:
-        click.echo(
-            f"  (Run: {env_var}={source_type} silicon-refinery to generate the script directly)"
-        )
+        click.echo(f"  (Run: {env_var}={source_type} fmtools to generate the script directly)")
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────

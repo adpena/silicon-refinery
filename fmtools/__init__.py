@@ -1,5 +1,5 @@
 """
-SiliconRefinery public API.
+FMTools public API.
 
 Root imports are provided lazily so CLI workflows can run even when the Apple
 Foundation Models SDK is not installed in the current interpreter.
@@ -23,9 +23,7 @@ __all__ = [
 
 
 def _raise_missing_sdk() -> None:
-    raise_setup_error(
-        "silicon_refinery", reason="ModuleNotFoundError: No module named 'apple_fm_sdk'"
-    )
+    raise_setup_error("fmtools", reason="ModuleNotFoundError: No module named 'apple_fm_sdk'")
 
 
 def __getattr__(name: str) -> Any:
@@ -65,4 +63,4 @@ def __getattr__(name: str) -> Any:
             raise
         return {"Source": Source, "Extract": Extract, "Sink": Sink}[name]
 
-    raise AttributeError(f"module 'silicon_refinery' has no attribute {name!r}")
+    raise AttributeError(f"module 'fmtools' has no attribute {name!r}")

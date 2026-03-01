@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.auditor — Code Auditor.
+Tests for fmtools.auditor — Code Auditor.
 
 All tests mock apple_fm_sdk via the conftest.py module-level mock.
 """
@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.auditor import (
+from fmtools.auditor import (
     AuditIssue,
     AuditResult,
     audit_diff,
@@ -193,7 +193,7 @@ class TestAuditFile:
             p1,
             p2,
             patch(
-                "silicon_refinery.auditor.asyncio.to_thread",
+                "fmtools.auditor.asyncio.to_thread",
                 AsyncMock(return_value="x = 1\n"),
             ) as to_thread,
         ):
@@ -266,7 +266,7 @@ class TestAuditDirectory:
         good_result = AuditResult(file_path=str(file_b), summary="ok", score=90, issues=[])
         patched = AsyncMock(side_effect=[RuntimeError("boom"), good_result])
 
-        with patch("silicon_refinery.auditor.audit_file", patched):
+        with patch("fmtools.auditor.audit_file", patched):
             results = await audit_directory(tmp_path)
 
         assert len(results) == 2
@@ -298,7 +298,7 @@ class TestAuditDirectory:
                 active -= 1
             return AuditResult(file_path=str(file_path), issues=[], summary="ok", score=100)
 
-        with patch("silicon_refinery.auditor.audit_file", side_effect=fake_audit):
+        with patch("fmtools.auditor.audit_file", side_effect=fake_audit):
             results = await audit_directory(tmp_path, max_concurrency=2)
 
         assert len(results) == 6
@@ -317,7 +317,7 @@ class TestAuditDirectory:
                 file_path=str(file_path), issues=[], summary=file_path.name, score=100
             )
 
-        with patch("silicon_refinery.auditor.audit_file", side_effect=fake_audit):
+        with patch("fmtools.auditor.audit_file", side_effect=fake_audit):
             results = await audit_directory(tmp_path, max_concurrency=3)
 
         assert [Path(r.file_path).name for r in results] == ["a.py", "b.py", "c.py"]
@@ -435,7 +435,7 @@ class TestFormatAuditReport:
 
         report = format_audit_report(results)
 
-        assert "SiliconRefinery Code Audit Report" in report
+        assert "FMTools Code Audit Report" in report
         assert "Files audited: 2" in report
         assert "Total issues:  2" in report
         assert "app.py" in report

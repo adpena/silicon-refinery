@@ -103,7 +103,7 @@ spctl -a -vv -t open --context context:primary-signature "$ARTIFACT_PATH"
 
 if [[ "$ARTIFACT_PATH" == *.dmg ]]; then
   require_cmd hdiutil
-  MOUNT_POINT="$(mktemp -d /tmp/silicon-refinery-chat-notary.XXXXXX)"
+  MOUNT_POINT="$(mktemp -d /tmp/fmchat-notary.XXXXXX)"
   ATTACHED=0
   cleanup() {
     if [[ "$ATTACHED" == "1" ]]; then

@@ -1,5 +1,5 @@
 """
-Comprehensive tests for silicon_refinery.decorators (local_extract).
+Comprehensive tests for fmtools.decorators (local_extract).
 
 Covers:
   - Decorator structural properties (wrapping, name preservation)
@@ -21,8 +21,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.decorators import local_extract
-from silicon_refinery.exceptions import AppleFMSetupError
+from fmtools.decorators import local_extract
+from fmtools.exceptions import AppleFMSetupError
 
 from .conftest import MockSchema, make_mock_model, make_mock_session
 
@@ -466,10 +466,10 @@ class TestLocalExtractDebugTiming:
             """Extract."""
             pass
 
-        with caplog.at_level(logging.INFO, logger="silicon_refinery"):
+        with caplog.at_level(logging.INFO, logger="fmtools"):
             await extract_name("Alice is 30")
 
-        assert any("[SiliconRefinery] Extraction completed in" in r.message for r in caplog.records)
+        assert any("[FMTools] Extraction completed in" in r.message for r in caplog.records)
         assert any("Input length:" in r.message for r in caplog.records)
 
     async def test_no_timing_log_when_disabled(self, mock_fm_available, caplog):
@@ -478,7 +478,7 @@ class TestLocalExtractDebugTiming:
             """Extract."""
             pass
 
-        with caplog.at_level(logging.INFO, logger="silicon_refinery"):
+        with caplog.at_level(logging.INFO, logger="fmtools"):
             await extract_name("Alice")
 
         timing_messages = [r for r in caplog.records if "Extraction completed" in r.message]

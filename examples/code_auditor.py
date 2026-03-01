@@ -1,5 +1,5 @@
 """
-Code auditor example for SiliconRefinery.
+Code auditor example for FMTools.
 
 Runs `audit_file`, `audit_directory`, and `audit_diff` with a demo backend so
 the example is runnable without a live Foundation Model.
@@ -15,13 +15,13 @@ from pathlib import Path
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery.auditor import (
+    from fmtools.auditor import (
         audit_diff,
         audit_directory,
         audit_file,
         format_audit_report,
     )
-    from silicon_refinery.protocols import get_backend, set_backend
+    from fmtools.protocols import get_backend, set_backend
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("code_auditor.py", exc)
 

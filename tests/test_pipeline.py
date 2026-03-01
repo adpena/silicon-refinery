@@ -1,5 +1,5 @@
 """
-Comprehensive tests for silicon_refinery.pipeline (Source, Extract, Sink, Pipeline).
+Comprehensive tests for fmtools.pipeline (Source, Extract, Sink, Pipeline).
 
 Covers:
   - Node >> operator composition
@@ -17,8 +17,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.exceptions import AppleFMSetupError
-from silicon_refinery.pipeline import Extract, Node, Pipeline, Sink, Source
+from fmtools.exceptions import AppleFMSetupError
+from fmtools.pipeline import Extract, Node, Pipeline, Sink, Source
 
 from .conftest import MockSchema, make_mock_model, make_mock_session
 

@@ -1,5 +1,5 @@
 """
-Basic smoke tests for SiliconRefinery.
+Basic smoke tests for FMTools.
 
 These verify that the core API surface is importable and the main
 abstractions compose correctly, without requiring a real FM model.
@@ -7,9 +7,9 @@ abstractions compose correctly, without requiring a real FM model.
 
 from unittest.mock import MagicMock, patch
 
-from silicon_refinery.async_generators import stream_extract
-from silicon_refinery.decorators import local_extract
-from silicon_refinery.pipeline import Extract, Sink, Source
+from fmtools.async_generators import stream_extract
+from fmtools.decorators import local_extract
+from fmtools.pipeline import Extract, Sink, Source
 
 from .conftest import MockSchema
 
@@ -36,7 +36,7 @@ def test_pipeline_composition():
     source = Source(["Test1"])
     mock_model = MagicMock()
     mock_model.is_available.return_value = (True, None)
-    with patch("silicon_refinery.pipeline.create_model", return_value=mock_model):
+    with patch("fmtools.pipeline.create_model", return_value=mock_model):
         extract = Extract(schema=MockSchema)
         sink = Sink(print)
 

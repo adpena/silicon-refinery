@@ -50,7 +50,7 @@ jobs:
         run: uv sync --group dev
 
       - name: ty check
-        run: uv run ty check silicon_refinery/
+        run: uv run ty check fmtools/
 
   test:
     name: Test (Python ${{ matrix.python-version }})

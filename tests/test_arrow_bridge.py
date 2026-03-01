@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.arrow_bridge — Arrow IPC Bridge.
+Tests for fmtools.arrow_bridge — Arrow IPC Bridge.
 
 Tests that require pyarrow are skipped when the package is not installed.
 """
@@ -11,7 +11,7 @@ import sys
 
 import pytest
 
-from silicon_refinery.arrow_bridge import (
+from fmtools.arrow_bridge import (
     ArrowStreamWriter,
     from_arrow_ipc,
     from_arrow_ipc_buffer,
@@ -67,7 +67,7 @@ class TestArrowIPCFile:
             replace_calls.append((str(src), str(dst)))
             return real_replace(src, dst)
 
-        monkeypatch.setattr("silicon_refinery.arrow_bridge.os.replace", tracking_replace)
+        monkeypatch.setattr("fmtools.arrow_bridge.os.replace", tracking_replace)
         to_arrow_ipc([{"x": 1}], path)
 
         assert len(replace_calls) == 1
@@ -245,7 +245,7 @@ class TestImportErrorHandling:
         monkeypatch.setitem(sys.modules, "pyarrow", None)
 
         # Re-import the helper function to trigger the lazy import path
-        from silicon_refinery.arrow_bridge import _require_pyarrow
+        from fmtools.arrow_bridge import _require_pyarrow
 
         with pytest.raises(ImportError, match="Install pyarrow"):
             _require_pyarrow()

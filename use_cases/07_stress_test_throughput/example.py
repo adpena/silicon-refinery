@@ -4,9 +4,9 @@ import time
 
 import apple_fm_sdk as fm
 
-from silicon_refinery import stream_extract
+from fmtools import stream_extract
 
-# Enable debug logging for SiliconRefinery
+# Enable debug logging for FMTools
 logging.basicConfig(level=logging.INFO)
 
 
@@ -32,7 +32,7 @@ async def main():
     TOTAL_ROWS = 1000  # Adjust this to test larger loads (e.g. 100k)
     CHUNK_SIZE = 5  # Process 5 rows at a time
 
-    print(f"🔥 Stress Testing SiliconRefinery: Processing {TOTAL_ROWS} unstructured records...")
+    print(f"🔥 Stress Testing FMTools: Processing {TOTAL_ROWS} unstructured records...")
     print(f"Chunk Size: {CHUNK_SIZE} lines per chunk.")
 
     dataset_stream = generate_gigantic_dataset(TOTAL_ROWS)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/doctor.sh — Verify that all prerequisites for SiliconRefinery are met.
+# scripts/doctor.sh — Verify that all prerequisites for FMTools are met.
 set -euo pipefail
 
 RED='\033[0;31m'
@@ -15,7 +15,7 @@ pass()  { ok=$((ok+1));   printf "${GREEN}[PASS]${NC}  %s\n" "$1"; }
 skip()  { warn=$((warn+1)); printf "${YELLOW}[WARN]${NC}  %s\n" "$1"; }
 fail()  { fail=$((fail+1)); printf "${RED}[FAIL]${NC}  %s\n" "$1"; }
 
-echo "=== SiliconRefinery Doctor ==="
+echo "=== FMTools Doctor ==="
 echo ""
 
 # --- macOS version ---

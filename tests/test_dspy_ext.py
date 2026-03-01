@@ -1,5 +1,5 @@
 """
-Comprehensive tests for silicon_refinery.dspy_ext (AppleFMLM).
+Comprehensive tests for fmtools.dspy_ext (AppleFMLM).
 
 Covers:
   - __init__ sets up model, kwargs, provider, history (deque with maxlen)
@@ -29,7 +29,7 @@ class TestAppleFMLMInit:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             assert lm.provider == "apple_fm"
@@ -40,7 +40,7 @@ class TestAppleFMLMInit:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM(model_name="custom_model")
             # The model attribute is set by dspy.LM parent
@@ -50,7 +50,7 @@ class TestAppleFMLMInit:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             assert isinstance(lm.history, collections.deque)
@@ -60,7 +60,7 @@ class TestAppleFMLMInit:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model) as model_cls:
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             model_cls.assert_called_once()
@@ -82,7 +82,7 @@ class TestAppleFMLMBasicRequest:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             result = lm.basic_request("What is the answer?")
@@ -100,7 +100,7 @@ class TestAppleFMLMBasicRequest:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm.basic_request("test prompt")
@@ -118,7 +118,7 @@ class TestAppleFMLMBasicRequest:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             result = lm.basic_request("prompt")
@@ -141,7 +141,7 @@ class TestAppleFMLMCallWithPrompt:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             result = lm(prompt="Hello world")
@@ -157,7 +157,7 @@ class TestAppleFMLMCallWithPrompt:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm(prompt="test prompt")
@@ -175,7 +175,7 @@ class TestAppleFMLMCallWithPrompt:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm(prompt="first")
@@ -202,7 +202,7 @@ class TestAppleFMLMCallWithMessages:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             messages = [
@@ -226,7 +226,7 @@ class TestAppleFMLMCallWithMessages:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             messages = [
@@ -249,7 +249,7 @@ class TestAppleFMLMCallWithMessages:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             messages = [
@@ -276,7 +276,7 @@ class TestAppleFMLMCallErrors:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             with pytest.raises(ValueError, match="Either prompt or messages must be provided"):
@@ -292,7 +292,7 @@ class TestAppleFMLMCallErrors:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm(
@@ -322,7 +322,7 @@ class TestAppleFMLMHistoryBounding:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             # Manually set a small maxlen for testing
@@ -356,7 +356,7 @@ class TestAppleFMLMCallEdgeCases:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             result = lm(messages=[])
@@ -376,7 +376,7 @@ class TestAppleFMLMCallEdgeCases:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm(messages=[])
@@ -396,7 +396,7 @@ class TestAppleFMLMCallEdgeCases:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             # Pass extra kwargs that basic_request accepts via **kwargs
@@ -419,7 +419,7 @@ class TestAppleFMLMCallEdgeCases:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm(messages=[{"role": "user", "content": ""}])
@@ -442,7 +442,7 @@ class TestAppleFMLMExecutorCaching:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             assert hasattr(lm, "_executor")
@@ -455,7 +455,7 @@ class TestAppleFMLMExecutorCaching:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             assert isinstance(lm._executor, concurrent.futures.ThreadPoolExecutor)
@@ -470,7 +470,7 @@ class TestAppleFMLMExecutorCaching:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             executor_before = lm._executor
@@ -489,7 +489,7 @@ class TestAppleFMLMExecutorCaching:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             assert lm._executor._max_workers == 1
@@ -505,7 +505,7 @@ class TestAppleFMLMExecutorLifecycle:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm._executor.shutdown = MagicMock()
@@ -519,7 +519,7 @@ class TestAppleFMLMExecutorLifecycle:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             with AppleFMLM() as lm:
                 lm._executor.shutdown = MagicMock()
@@ -532,7 +532,7 @@ class TestAppleFMLMExecutorLifecycle:
         mock_model = make_mock_model(available=True)
 
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.dspy_ext import AppleFMLM
+            from fmtools.dspy_ext import AppleFMLM
 
             lm = AppleFMLM()
             lm._executor.shutdown = MagicMock()

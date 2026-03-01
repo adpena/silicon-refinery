@@ -1,5 +1,5 @@
 """
-IO Protocol Wrappers — flexible input adapters for SiliconRefinery pipelines.
+IO Protocol Wrappers — flexible input adapters for FMTools pipelines.
 
 Each adapter implements the ``DataAdapter`` protocol (``__aiter__`` yielding strings)
 so it can be plugged directly into ``Source()``, ``stream_extract()``, or any other
@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 
 # ---------------------------------------------------------------------------

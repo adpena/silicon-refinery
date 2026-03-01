@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.scanner — mmap Sliding Window Scanner.
+Tests for fmtools.scanner — mmap Sliding Window Scanner.
 
 Covers: MMapScanner window iteration, overlap, empty/small files,
         UTF-8 boundary handling, context manager, and line_split_scanner.
@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-import silicon_refinery.scanner as scanner_mod
-from silicon_refinery.scanner import MMapScanner, line_split_scanner
+import fmtools.scanner as scanner_mod
+from fmtools.scanner import MMapScanner, line_split_scanner
 
 # ========================================================================
 # MMapScanner — basic reading

@@ -6,7 +6,7 @@ The `@enhanced_debug` decorator catches exceptions, prints the standard Python t
 
 ```python
 from pathlib import Path
-from silicon_refinery import enhanced_debug
+from fmtools import enhanced_debug
 
 PROMPT_PATH = Path("crash_report_for_llm.txt")
 if PROMPT_PATH.exists():
@@ -27,7 +27,7 @@ print("prompt_exists=", PROMPT_PATH.exists())
 print("prompt_first_line=", PROMPT_PATH.read_text(encoding="utf-8").splitlines()[0])
 
 # Actual output:
-# [stdout] SiliconRefinery AI Debug Analysis (Certainty: HIGH)
+# [stdout] FMTools AI Debug Analysis (Certainty: HIGH)
 # [stdout] Exception: TypeError: can only concatenate str (not 'int') to str
 # [stdout] Function: process_data
 # [stdout] Context retries: 0
@@ -40,10 +40,10 @@ print("prompt_first_line=", PROMPT_PATH.read_text(encoding="utf-8").splitlines()
 # [stdout] prompt_first_line= I encountered a crash in my Python application.
 # [stderr] --- Exception caught in 'process_data' ---
 # [stderr] TypeError: can only concatenate str (not 'int') to str
-# [stderr] SiliconRefinery is analyzing the crash locally via Neural Engine...
+# [stderr] FMTools is analyzing the crash locally via Neural Engine...
 ```
 
-When the function crashes, SiliconRefinery will:
+When the function crashes, FMTools will:
 
 1. Print the standard Python traceback to stderr
 2. Build an evidence-focused debug query (traceback + context + frame/logging clues) and send it to the on-device Foundation Model

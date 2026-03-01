@@ -1,5 +1,5 @@
 """
-Functional Pipeline API for SiliconRefinery.
+Functional Pipeline API for FMTools.
 
 A functional/compositional pipeline API inspired by Elixir pipes and Haskell,
 complementing the existing OOP Pipeline class. Pipelines are built by composing
@@ -27,7 +27,7 @@ from typing import Any, TypeVar, Union
 
 from .protocols import create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 T = TypeVar("T")
 U = TypeVar("U")

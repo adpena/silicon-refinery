@@ -6,7 +6,7 @@ from collections.abc import AsyncIterable
 from .exceptions import AppleFMSetupError, ensure_model_available
 from .protocols import create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 
 class Node:

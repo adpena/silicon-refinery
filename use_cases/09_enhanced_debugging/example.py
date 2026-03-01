@@ -1,4 +1,4 @@
-from silicon_refinery import enhanced_debug
+from fmtools import enhanced_debug
 
 
 @enhanced_debug(prompt_to="crash_report_for_llm.txt")
@@ -11,7 +11,7 @@ def process_data(data_payload):
 
 
 def main():
-    print("🚀 Demonstrating SiliconRefinery's @enhanced_debug capabilities\n")
+    print("🚀 Demonstrating FMTools's @enhanced_debug capabilities\n")
 
     bad_payload = {"value": "100"}
 
@@ -19,7 +19,7 @@ def main():
         process_data(bad_payload)
     except Exception:
         print(
-            "\n✅ Execution continued gracefully in outer scope after SiliconRefinery dumped the analysis."
+            "\n✅ Execution continued gracefully in outer scope after FMTools dumped the analysis."
         )
 
     print("\nCheck your local directory for the 'crash_report_for_llm.txt' file!")

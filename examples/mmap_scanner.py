@@ -1,5 +1,5 @@
 """
-mmap scanner example for SiliconRefinery.
+mmap scanner example for FMTools.
 
 Demonstrates `MMapScanner` and `line_split_scanner` on a temporary file.
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery.scanner import MMapScanner, line_split_scanner
+    from fmtools.scanner import MMapScanner, line_split_scanner
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("mmap_scanner.py", exc)
 

@@ -1,8 +1,8 @@
-# GEMINI.md - SiliconRefinery
+# GEMINI.md - FMTools
 
 ## Project Overview
 
-**SiliconRefinery** is an enterprise-grade Python ETL framework designed for **zero-trust, high-throughput data processing** exclusively on Apple Silicon. It leverages the [Apple Foundation Models SDK (`python-apple-fm-sdk`)](https://github.com/apple/python-apple-fm-sdk) to run on-device LLM inference, ensuring that sensitive data never leaves the local machine.
+**FMTools** is an enterprise-grade Python ETL framework designed for **zero-trust, high-throughput data processing** exclusively on Apple Silicon. It leverages the [Apple Foundation Models SDK (`python-apple-fm-sdk`)](https://github.com/apple/python-apple-fm-sdk) to run on-device LLM inference, ensuring that sensitive data never leaves the local machine.
 
 The framework abstracts complex LLM interactions into idiomatic Python patterns, making it easy to build structured data extraction pipelines, AI-powered debuggers, and interactive data analysis tools.
 
@@ -20,40 +20,40 @@ The framework abstracts complex LLM interactions into idiomatic Python patterns,
 
 The project is structured into several core modules, each providing a specific interaction pattern with the local Foundation Models:
 
-- **`silicon_refinery.decorators`**:
+- **`fmtools.decorators`**:
   - `@local_extract`: Transforms standard functions into structured LLM extraction engines. Function docstrings act as system instructions.
   - `@enhanced_debug`: Catches exceptions and uses the local AI to provide a root-cause analysis and suggest fixes.
-- **`silicon_refinery.async_generators`**:
+- **`fmtools.async_generators`**:
   - `stream_extract`: A high-concurrency asynchronous generator for processing massive text streams. Includes `history_mode` (clear, keep, hybrid, compact) for session memory management.
-- **`silicon_refinery.pipeline`**:
+- **`fmtools.pipeline`**:
   - Provides a declarative, bitwise operator syntax (`Source >> Extract >> Sink`) for constructing ETL pipelines.
-- **`silicon_refinery.polars_ext`**:
+- **`fmtools.polars_ext`**:
   - Registers the `.local_llm` namespace in Polars, allowing `pl.col("...").local_llm.extract(Schema)` calls.
-- **`silicon_refinery.dspy_ext`**:
+- **`fmtools.dspy_ext`**:
   - Implements `AppleFMLM`, a DSPy-compatible language model provider.
-- **`silicon_refinery.debugging`**:
+- **`fmtools.debugging`**:
   - Contains the structured AI analysis logic used by the `@enhanced_debug` decorator.
-- **`silicon_refinery.cache`**:
+- **`fmtools.cache`**:
   - sqlite3 content-addressable extraction cache and cache-aware extraction helpers.
-- **`silicon_refinery.protocols`**:
+- **`fmtools.protocols`**:
   - Structural typing interfaces and swappable backend registry used by core extractors.
-- **`silicon_refinery.adapters`**:
+- **`fmtools.adapters`**:
   - Async adapters for file/stdin/CSV/JSONL/iterable/trio sources plus text chunking.
-- **`silicon_refinery._context`**:
+- **`fmtools._context`**:
   - `contextvars`-based per-task model/session scoping.
-- **`silicon_refinery._threading`**:
+- **`fmtools._threading`**:
   - Free-threading detection and synchronization primitives.
-- **`silicon_refinery.scanner`**:
+- **`fmtools.scanner`**:
   - `mmap` sliding-window scanner for large file processing.
-- **`silicon_refinery.watcher`**:
+- **`fmtools.watcher`**:
   - Polling hot-folder daemon for auto-processing incoming files.
-- **`silicon_refinery._jit`**:
+- **`fmtools._jit`**:
   - Runtime diagnostics, counters, and timing decorator.
-- **`silicon_refinery.arrow_bridge`**:
+- **`fmtools.arrow_bridge`**:
   - Arrow IPC file/buffer bridges and Polars conversion helpers.
-- **`silicon_refinery.functional`**:
+- **`fmtools.functional`**:
   - Functional pipeline composition primitives.
-- **`silicon_refinery.auditor`**:
+- **`fmtools.auditor`**:
   - On-device code auditing and report formatting utilities.
 
 ---
@@ -92,7 +92,7 @@ source .venv/bin/activate
   ```
 - **Type Checking:**
   ```bash
-  uv run ty check silicon_refinery/
+  uv run ty check fmtools/
   ```
 - **System Diagnostics:**
   ```bash

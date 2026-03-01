@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.functional — Functional Pipeline API.
+Tests for fmtools.functional — Functional Pipeline API.
 
 All tests mock apple_fm_sdk via the conftest.py module-level mock.
 """
@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.functional import (
+from fmtools.functional import (
     Step,
     batch,
     collect,

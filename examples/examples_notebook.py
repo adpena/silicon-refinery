@@ -10,7 +10,7 @@ def _():
 
     import marimo as mo
 
-    from silicon_refinery.exceptions import AppleFMSetupError
+    from fmtools.exceptions import AppleFMSetupError
 
     return AppleFMSetupError, asyncio, mo
 
@@ -19,7 +19,7 @@ def _():
 def _(mo):
     mo.md(
         """
-        # SiliconRefinery Examples Notebook
+        # FMTools Examples Notebook
 
         This notebook mirrors the repository's example surface:
 
@@ -35,8 +35,8 @@ def _(mo):
         - `uv sync --all-groups`
         - `apple_fm_sdk` available locally
         - Optional extras for some demos:
-          - `uv pip install silicon-refinery[arrow]`
-          - `uv pip install silicon-refinery[adapters]`
+          - `uv pip install fmtools[arrow]`
+          - `uv pip install fmtools[adapters]`
           - `uv pip install briefcase toga-cocoa` (desktop app)
 
         ## How to use
@@ -476,7 +476,7 @@ def _(mo):
         Recommended command:
 
         ```bash
-        uv run silicon-refinery chat
+        uv run fmtools chat
         ```
         """
     )
@@ -491,12 +491,12 @@ def _(mo):
 
         - Keep `RUN_LIVE_DEMOS = False` and `RUN_USE_CASES = False` when editing.
         - Use per-script CLI runs for focused output:
-          - `silicon-refinery example <name>`
+          - `fmtools example <name>`
           - `uv run python use_cases/<NN_name>/example.py`
         - For setup verification:
-          - `uv run silicon-refinery doctor`
+          - `uv run fmtools doctor`
         - For full example validation:
-          - `uv run silicon-refinery smoke`
+          - `uv run fmtools smoke`
         """
     )
     return

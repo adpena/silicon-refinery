@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery._threading — free-threading support utilities.
+Tests for fmtools._threading — free-threading support utilities.
 """
 
 from __future__ import annotations
@@ -8,8 +8,8 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-import silicon_refinery._threading as threading_mod
-from silicon_refinery._threading import (
+import fmtools._threading as threading_mod
+from fmtools._threading import (
     AtomicCounter,
     CriticalSection,
     GILStatus,

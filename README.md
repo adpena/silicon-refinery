@@ -1,8 +1,8 @@
 <div align="center">
-  <h1>SiliconRefinery</h1>
+  <h1>FMTools</h1>
   <p><b>Local Python framework for structured extraction on Apple Silicon</b></p>
   <p>
-    <a href="https://pypi.org/project/silicon-refinery/"><img src="https://img.shields.io/pypi/v/silicon_refinery.svg" alt="PyPI Version"></a>
+    <a href="https://pypi.org/project/fmtools/"><img src="https://img.shields.io/pypi/v/fmtools.svg" alt="PyPI Version"></a>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
     <img src="https://img.shields.io/badge/Python-3.13%2B-blue.svg" alt="Python Version">
     <img src="https://img.shields.io/badge/macOS-26.0+-lightgrey.svg" alt="macOS Version">
@@ -10,13 +10,13 @@
   </p>
 </div>
 
-**SiliconRefinery** is a Python framework built on the [Apple Foundation Models SDK (`python-apple-fm-sdk`)](https://github.com/apple/python-apple-fm-sdk). It provides local APIs and tools for converting unstructured text into schema-validated Python objects on Apple Silicon.
+**FMTools** is a Python framework built on the [Apple Foundation Models SDK (`python-apple-fm-sdk`)](https://github.com/apple/python-apple-fm-sdk). It provides local APIs and tools for converting unstructured text into schema-validated Python objects on Apple Silicon.
 
 It is a developer layer for the SDK: app, CLI, and API surfaces that reduce the amount of wrapper and runtime plumbing developers need to build themselves.
 
 Built so far (applications + APIs):
-- `SiliconRefineryChat` (macOS app): a local-first chat app with streaming responses, SQLite-backed multi-chat history, export/resume flows, and no cloud dependency; also serves as a reference implementation for SDK-driven chat UX patterns.
-- `silicon-refinery chat` (CLI app): a scriptable local chat runtime for terminal-first workflows and fast iteration during development.
+- `FMChat` (macOS app): a local-first chat app with streaming responses, SQLite-backed multi-chat history, export/resume flows, and no cloud dependency; also serves as a reference implementation for SDK-driven chat UX patterns.
+- `fmtools chat` (CLI app): a scriptable local chat runtime for terminal-first workflows and fast iteration during development.
 - `@local_extract` (core API): schema-guaranteed extraction from unstructured text into typed Python objects, without prompt-parsing hacks.
 - `stream_extract` (core API): async streaming extraction for high-throughput pipelines where latency and concurrency both matter.
 - `Source >> Extract >> Sink` (pipeline API): composable, readable dataflow pattern for production ETL and event-processing jobs.
@@ -30,16 +30,16 @@ Quick capability snippets:
 # Actual output comments below are from running these commands locally on macOS 26.3 (M1, 8 GB RAM).
 
 # 1) Discover the full runnable use-case catalog
-silicon-refinery run --list
+fmtools run --list
 
 # 2) Discover the full runnable examples catalog
-silicon-refinery example --list
+fmtools example --list
 
 # 3) Launch local desktop chat (Apple Foundation Models + SQLite memory)
-silicon-refinery chat
+fmtools chat
 
 # 4) Standalone app entrypoint after Homebrew cask install
-silicon-refinery-chat
+fmchat
 
 # Actual output:
 # Available use cases:
@@ -74,7 +74,7 @@ silicon-refinery-chat
 # Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
 import polars as pl
 import apple_fm_sdk as fm
-from silicon_refinery.polars_ext import LocalLLMExpr  # registers .local_llm
+from fmtools.polars_ext import LocalLLMExpr  # registers .local_llm
 
 @fm.generable()
 class TicketSchema:
@@ -103,7 +103,7 @@ print(enriched_df.select(["text_column", "extracted_json"]).to_dicts())
 
 ```python
 # Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
-from silicon_refinery import enhanced_debug
+from fmtools import enhanced_debug
 
 @enhanced_debug(summary_to="stderr", prompt_to="stdout", silenced=False)
 def process_data(payload):
@@ -118,7 +118,7 @@ print(process_data({"value": 10}))
 # Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
 import asyncio
 import apple_fm_sdk as fm
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
 @fm.generable()
 class SupportTicket:
@@ -149,7 +149,7 @@ No API keys or cloud calls are required for local inference.
 
 ## Table of Contents
 
-- [Why SiliconRefinery?](#why-siliconrefinery)
+- [Why FMTools?](#why-fmtools)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Public API Breakdown](#public-api-breakdown)
@@ -172,13 +172,13 @@ No API keys or cloud calls are required for local inference.
 
 ---
 
-## Why SiliconRefinery?
+## Why FMTools?
 
 Many teams and individual developers work with unstructured logs, CSV exports, support messages, and notes. Historically, extracting structure from this data has often required cloud LLM calls, with cost and privacy tradeoffs.
 
-SiliconRefinery focuses on local-first extraction:
+FMTools focuses on local-first extraction:
 
-| Problem | SiliconRefinery's Answer |
+| Problem | FMTools's Answer |
 |---|---|
 | **Data leaves your network** | All inference runs on the local Neural Engine. Zero egress. |
 | **API costs scale with volume** | Zero token costs. Process millions of records for free. |
@@ -208,32 +208,32 @@ For straightforward setup, pick one:
 # 1) PyPI + uv (library + CLI in a project virtual environment)
 uv venv --python 3.13 .venv
 source .venv/bin/activate
-uv pip install -U silicon-refinery
+uv pip install -U fmtools
 uv pip install -U "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git"
 
 # Verify
-silicon-refinery doctor
+fmtools doctor
 ```
 
 ```bash
 # 2) Homebrew (CLI + standalone desktop app, minimal flow)
-brew tap adpena/silicon-refinery https://github.com/adpena/homebrew-silicon-refinery
-brew install silicon-refinery
-brew install silicon-refinery-chat
+brew tap adpena/fmtools https://github.com/adpena/homebrew-fmtools
+brew install fmtools
+brew install fmchat
 
 # Verify
-silicon-refinery doctor
-silicon-refinery-chat
+fmtools doctor
+fmchat
 ```
 
 ### One-command setup (recommended)
 
 ```bash
-git clone https://github.com/adpena/silicon-refinery && cd silicon-refinery
+git clone https://github.com/adpena/fmtools && cd fmtools
 ./scripts/setup.sh
 ```
 
-This installs [uv](https://docs.astral.sh/uv/) if missing, creates a virtual environment, syncs dependency groups (including `apple-fm-sdk` via `tool.uv.sources`), and installs the `silicon-refinery` CLI globally in editable mode for local development. Run `./scripts/doctor.sh` afterwards to verify your system meets all requirements.
+This installs [uv](https://docs.astral.sh/uv/) if missing, creates a virtual environment, syncs dependency groups (including `apple-fm-sdk` via `tool.uv.sources`), and installs the `fmtools` CLI globally in editable mode for local development. Run `./scripts/doctor.sh` afterwards to verify your system meets all requirements.
 
 Useful setup flags:
 
@@ -250,8 +250,8 @@ Useful setup flags:
 # 1. Install uv (if you don't have it)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 2. Clone SiliconRefinery
-git clone https://github.com/adpena/silicon-refinery && cd silicon-refinery
+# 2. Clone FMTools
+git clone https://github.com/adpena/fmtools && cd fmtools
 
 # 3. Create venv and install all dependencies (including Apple FM SDK from git)
 uv sync --all-groups
@@ -266,15 +266,15 @@ Use whichever mode best fits your workflow:
 
 | Mode | Command example | Best for |
 |---|---|---|
-| No activation required | `uv run silicon-refinery chat` | Most reliable local dev from repo root |
-| Activated venv | `silicon-refinery chat` (after `source .venv/bin/activate`) | Traditional Python workflow |
-| Global CLI install | `silicon-refinery chat` (after `uv tool install --editable --from . silicon-refinery`) | Seamless command usage across shells |
+| No activation required | `uv run fmtools chat` | Most reliable local dev from repo root |
+| Activated venv | `fmtools chat` (after `source .venv/bin/activate`) | Traditional Python workflow |
+| Global CLI install | `fmtools chat` (after `uv tool install --editable --from . fmtools`) | Seamless command usage across shells |
 
-If `silicon-refinery` is not found after setup, open a new terminal (or run `source ~/.zshrc`) so your shell reloads PATH changes.
+If `fmtools` is not found after setup, open a new terminal (or run `source ~/.zshrc`) so your shell reloads PATH changes.
 
-For chat workflows, `silicon-refinery chat` prefers free-threaded CPython (`3.14t`, then `3.13t`) by default and falls back to standard-GIL only if a no-GIL runtime is unavailable.
+For chat workflows, `fmtools chat` prefers free-threaded CPython (`3.14t`, then `3.13t`) by default and falls back to standard-GIL only if a no-GIL runtime is unavailable.
 
-Standalone desktop app repo: [adpena/silicon-refinery-chat](https://github.com/adpena/silicon-refinery-chat) (`SiliconRefineryChat`).
+Standalone desktop app repo: [adpena/fmchat](https://github.com/adpena/fmchat) (`FMChat`).
 
 ### Keep dependencies updated
 
@@ -290,9 +290,9 @@ uv sync --project examples/toga_local_chat_app --directory examples/toga_local_c
 
 ### PyPI and Homebrew install story
 
-- **PyPI:** `silicon-refinery` is published for Python imports + CLI usage.
+- **PyPI:** `fmtools` is published for Python imports + CLI usage.
 - **Apple FM SDK:** still GitHub-sourced, so install via `uv pip install "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git"` (or run `uv sync --all-groups`).
-- **Homebrew tap:** `adpena/homebrew-silicon-refinery` provides both the CLI formula and chat app cask with a single tap.
+- **Homebrew tap:** `adpena/homebrew-fmtools` provides both the CLI formula and chat app cask with a single tap.
 
 ### Homebrew maintainer release flow
 
@@ -303,28 +303,28 @@ When shipping a new release and updating Homebrew support:
 git push origin main --tags
 
 # 2) Sync Formula + Cask into the tap repo and push
-#    (tap repo: adpena/homebrew-silicon-refinery)
-#    - Formula/silicon-refinery.rb
-#    - Casks/silicon-refinery-chat.rb
+#    (tap repo: adpena/homebrew-fmtools)
+#    - Formula/fmtools.rb
+#    - Casks/fmchat.rb
 
 # 3) Validate the installed command
-brew install silicon-refinery
-brew install silicon-refinery-chat
-silicon-refinery --help
-silicon-refinery doctor
-silicon-refinery-chat
+brew install fmtools
+brew install fmchat
+fmtools --help
+fmtools doctor
+fmchat
 ```
 
-The CLI formula (`Formula/silicon-refinery.rb`) and chat cask (`Casks/silicon-refinery-chat.rb`) are version-locked to the same release number and use thousandth-place increments (`0.0.216` -> `0.0.217`).
+The CLI formula (`Formula/fmtools.rb`) and chat cask (`Casks/fmchat.rb`) are version-locked to the same release number and use thousandth-place increments (`0.0.216` -> `0.0.217`).
 This is enforced in CI/release via `python3 scripts/check_version_policy.py` (and `--enforce-thousandth-bump` during publish).
 
 ### Standalone Chat Repo release flow
 
-The standalone macOS app repository (`silicon-refinery-chat`) is synced and packaged from this repo via a local maintainer run.
+The standalone macOS app repository (`fmchat`) is synced and packaged from this repo via a local maintainer run.
 
 ```bash
 # Local maintainer sync (create-or-update repo, sync source/docs, build artifact, upload release asset)
-./scripts/publish_chat_repo.sh --repo adpena/silicon-refinery-chat
+./scripts/publish_chat_repo.sh --repo adpena/fmchat
 ```
 
 A sync-only fallback workflow exists at [`.github/workflows/publish-chat-repo.yml`](.github/workflows/publish-chat-repo.yml), but signing/notarization for distributable artifacts is maintained locally.
@@ -337,7 +337,7 @@ export CHAT_SIGN_IDENTITY="${CHAT_SIGN_IDENTITY:?Set your Developer ID identity 
 export CHAT_NOTARIZE_MODE=required
 export APPLE_NOTARY_PROFILE="${APPLE_NOTARY_PROFILE:?Set your stored notary profile name first}"
 
-./scripts/publish_chat_repo.sh --repo adpena/silicon-refinery-chat
+./scripts/publish_chat_repo.sh --repo adpena/fmchat
 ```
 
 This flow signs with hardened runtime via Briefcase identity packaging, notarizes via `xcrun notarytool`, staples tickets with `xcrun stapler`, and validates with `spctl`/`codesign`.
@@ -347,41 +347,41 @@ By default, `scripts/publish_chat_repo.sh` also blocks uploading untrusted artif
 
 ```bash
 # For FastAPI/Uvicorn integration (use_cases/06_fastapi_integration)
-uv pip install silicon-refinery[api]
+uv pip install fmtools[api]
 
 # For trio-native adapters (TrioAdapter)
-uv pip install silicon-refinery[adapters]
+uv pip install fmtools[adapters]
 
 # For Arrow IPC examples/integration
-uv pip install silicon-refinery[arrow]
+uv pip install fmtools[arrow]
 
 # For the comprehensive marimo examples notebook
 uv pip install marimo
 ```
 
-> **Important:** The `api`, `adapters`, and `arrow` extras do not install `apple-fm-sdk`. Install base/dev dependencies first (for example, `uv sync --all-groups`) so `silicon_refinery` can import and run.
+> **Important:** The `api`, `adapters`, and `arrow` extras do not install `apple-fm-sdk`. Install base/dev dependencies first (for example, `uv sync --all-groups`) so `fmtools` can import and run.
 
 ### CLI
 
-With any command mode above (`uv run`, activated `.venv`, or global tool install), the `silicon-refinery` CLI supports:
+With any command mode above (`uv run`, activated `.venv`, or global tool install), the `fmtools` CLI supports:
 
-If you have not activated `.venv` (or do not have global tool install), use `uv run` as a prefix, for example: `uv run silicon-refinery chat`.
+If you have not activated `.venv` (or do not have global tool install), use `uv run` as a prefix, for example: `uv run fmtools chat`.
 
 ```bash
-silicon-refinery setup      # First-time dev environment setup
-silicon-refinery install-homebrew  # Install/update via local Homebrew tap
-silicon-refinery doctor     # Check all system prerequisites
-silicon-refinery lint       # Run ruff linter
-silicon-refinery format     # Run ruff formatter
-silicon-refinery typecheck  # Run ty type checker
-silicon-refinery test       # Run the full test suite (460+ tests)
-silicon-refinery check      # Run lint + format + typecheck + tests (CI pipeline)
-silicon-refinery example --list   # List standalone examples
-silicon-refinery example simple_inference  # Run one example script
-silicon-refinery smoke      # Run full examples smoke suite (+ notebook startup check)
-silicon-refinery notebook   # Launch the comprehensive marimo notebook
-silicon-refinery chat       # Run the Toga + Briefcase local chat demo
-silicon-refinery chat --standard-gil  # Force standard-gil runtime for max GUI stability
+fmtools setup      # First-time dev environment setup
+fmtools install-homebrew  # Install/update via local Homebrew tap
+fmtools doctor     # Check all system prerequisites
+fmtools lint       # Run ruff linter
+fmtools format     # Run ruff formatter
+fmtools typecheck  # Run ty type checker
+fmtools test       # Run the full test suite (460+ tests)
+fmtools check      # Run lint + format + typecheck + tests (CI pipeline)
+fmtools example --list   # List standalone examples
+fmtools example simple_inference  # Run one example script
+fmtools smoke      # Run full examples smoke suite (+ notebook startup check)
+fmtools notebook   # Launch the comprehensive marimo notebook
+fmtools chat       # Run the Toga + Briefcase local chat demo
+fmtools chat --standard-gil  # Force standard-gil runtime for max GUI stability
 ```
 
 In chat compose, use `Cmd+Enter` to send; plain `Enter` inserts a newline.
@@ -390,11 +390,11 @@ In chat compose, use `Cmd+Enter` to send; plain `Enter` inserts a newline.
 
 ```bash
 # Quick system check
-silicon-refinery doctor
+fmtools doctor
 ```
 
 ```python
-import silicon_refinery
+import fmtools
 import apple_fm_sdk as fm
 
 # Actual output comments below are from running this snippet locally on macOS 26.3 (M1, 8 GB RAM).
@@ -435,7 +435,7 @@ print(SupportTicket.__name__)
 ```python
 # This snippet is runnable as-is.
 import apple_fm_sdk as fm
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
 @fm.generable()
 class SupportTicket:
@@ -457,7 +457,7 @@ print(classify_ticket.__name__)
 ```python
 import asyncio
 import apple_fm_sdk as fm
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
 @fm.generable()
 class SupportTicket:
@@ -491,15 +491,15 @@ The decorated function intercepts your arguments, sends them to the on-device mo
 
 ## Public API Breakdown
 
-SiliconRefinery follows a layered API design:
+FMTools follows a layered API design:
 - a small, stable root import surface for day-to-day usage
 - module-level APIs for advanced workflows
 - a CLI for reproducible local development workflows
 
-### Stable root imports (`silicon_refinery`)
+### Stable root imports (`fmtools`)
 
 ```python
-from silicon_refinery import (
+from fmtools import (
     AppleFMSetupError,
     Extract,
     Sink,
@@ -521,10 +521,10 @@ print(
 
 The public API is defined as:
 
-- **Library namespace contract:** Root imports in `silicon_refinery.__init__` are the stable, documented entry points for application code.
+- **Library namespace contract:** Root imports in `fmtools.__init__` are the stable, documented entry points for application code.
 - **Type contract:** Core extractors and decorators use explicit type signatures (`schema: type[T]`, async generator returns, typed exceptions).
 - **Behavior contract:** Extraction decorators and stream APIs preserve structured-output guarantees and raise deterministic setup/runtime exceptions (`AppleFMSetupError` and standard Python exception types).
-- **CLI contract:** `silicon-refinery --help` command set is the canonical executable API surface for development workflows.
+- **CLI contract:** `fmtools --help` command set is the canonical executable API surface for development workflows.
 
 | Symbol | Kind | Signature | Primary use |
 |---|---|---|---|
@@ -538,20 +538,20 @@ The public API is defined as:
 
 | Module | Primary public API | Role |
 |---|---|---|
-| `silicon_refinery.cache` | `ExtractionCache`, `cache_extract`, `cached_stream_extract`, `cached_local_extract` | sqlite-backed extraction caching |
-| `silicon_refinery.protocols` | `ModelProtocol`, `SessionProtocol`, `SessionFactory`, `AppleFMBackend`, `set_backend`, `get_backend`, `create_model`, `create_session` | Pluggable backend contracts wired into core extractors |
-| `silicon_refinery.adapters` | `FileAdapter`, `CSVAdapter`, `JSONLAdapter`, `StdinAdapter`, `IterableAdapter`, `TrioAdapter`, `TextChunkAdapter` | Async input adapters (including trio-style channels) |
-| `silicon_refinery._context` | `session_scope`, `get_session`, `get_model`, `get_instructions`, `copy_context` | Task-local session scoping |
-| `silicon_refinery._threading` | `is_free_threaded`, `get_gil_status`, `CriticalSection`, `AtomicCounter`, `ThreadSafeDict` | Free-threading safety primitives |
-| `silicon_refinery.scanner` | `MMapScanner`, `line_split_scanner` | Large-file scanning with overlap-safe windows |
-| `silicon_refinery.watcher` | `HotFolder`, `FileEvent`, `process_folder` | Hot-folder ingestion daemon |
-| `silicon_refinery._jit` | `diagnostics`, `diagnose`, `DiagnosticCollector`, `ExtractionMetrics` | Runtime diagnostics and metrics |
-| `silicon_refinery.arrow_bridge` | `to_arrow_ipc`, `from_arrow_ipc`, `to_arrow_ipc_buffer`, `from_arrow_ipc_buffer`, `ArrowStreamWriter`, `to_polars`, `from_polars` | Arrow/Polars interoperability |
-| `silicon_refinery.functional` | `pipe`, `source`, `extract`, `map_fn`, `filter_fn`, `flat_map_fn`, `batch`, `take`, `skip`, `tap`, `collect`, `reduce_fn` | Functional pipeline composition |
-| `silicon_refinery.auditor` | `audit_file`, `audit_directory`, `audit_diff`, `format_audit_report` | On-device code auditing with bounded-concurrency directory scans |
-| `silicon_refinery.exceptions` | `AppleFMSetupError`, `troubleshooting_message`, `require_apple_fm`, `ensure_model_available` | Shared setup validation and graceful diagnostics |
+| `fmtools.cache` | `ExtractionCache`, `cache_extract`, `cached_stream_extract`, `cached_local_extract` | sqlite-backed extraction caching |
+| `fmtools.protocols` | `ModelProtocol`, `SessionProtocol`, `SessionFactory`, `AppleFMBackend`, `set_backend`, `get_backend`, `create_model`, `create_session` | Pluggable backend contracts wired into core extractors |
+| `fmtools.adapters` | `FileAdapter`, `CSVAdapter`, `JSONLAdapter`, `StdinAdapter`, `IterableAdapter`, `TrioAdapter`, `TextChunkAdapter` | Async input adapters (including trio-style channels) |
+| `fmtools._context` | `session_scope`, `get_session`, `get_model`, `get_instructions`, `copy_context` | Task-local session scoping |
+| `fmtools._threading` | `is_free_threaded`, `get_gil_status`, `CriticalSection`, `AtomicCounter`, `ThreadSafeDict` | Free-threading safety primitives |
+| `fmtools.scanner` | `MMapScanner`, `line_split_scanner` | Large-file scanning with overlap-safe windows |
+| `fmtools.watcher` | `HotFolder`, `FileEvent`, `process_folder` | Hot-folder ingestion daemon |
+| `fmtools._jit` | `diagnostics`, `diagnose`, `DiagnosticCollector`, `ExtractionMetrics` | Runtime diagnostics and metrics |
+| `fmtools.arrow_bridge` | `to_arrow_ipc`, `from_arrow_ipc`, `to_arrow_ipc_buffer`, `from_arrow_ipc_buffer`, `ArrowStreamWriter`, `to_polars`, `from_polars` | Arrow/Polars interoperability |
+| `fmtools.functional` | `pipe`, `source`, `extract`, `map_fn`, `filter_fn`, `flat_map_fn`, `batch`, `take`, `skip`, `tap`, `collect`, `reduce_fn` | Functional pipeline composition |
+| `fmtools.auditor` | `audit_file`, `audit_directory`, `audit_diff`, `format_audit_report` | On-device code auditing with bounded-concurrency directory scans |
+| `fmtools.exceptions` | `AppleFMSetupError`, `troubleshooting_message`, `require_apple_fm`, `ensure_model_available` | Shared setup validation and graceful diagnostics |
 
-### CLI API (`silicon-refinery`)
+### CLI API (`fmtools`)
 
 Core commands:
 - `setup`, `install-homebrew`, `doctor`
@@ -567,12 +567,12 @@ Core commands:
 
 ## API Reference & Tutorials
 
-SiliconRefinery exposes seven foundational capabilities. Each one is documented below with its full function signature, parameter reference, behavior details, and a working example.
+FMTools exposes seven foundational capabilities. Each one is documented below with its full function signature, parameter reference, behavior details, and a working example.
 
 ### 1. `@local_extract` — Structured Extraction Decorator
 
-**Module:** `silicon_refinery.decorators`
-**Import:** `from silicon_refinery import local_extract`
+**Module:** `fmtools.decorators`
+**Import:** `from fmtools import local_extract`
 
 Transforms any Python function into an on-device LLM extraction engine. The function's docstring serves as the system prompt.
 
@@ -581,7 +581,7 @@ Transforms any Python function into an on-device LLM extraction engine. The func
 ```python
 # This snippet is runnable as-is and prints the current local_extract signature.
 from inspect import signature
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
 print(signature(local_extract))
 # Actual output:
@@ -594,7 +594,7 @@ print(signature(local_extract))
 |---|---|---|---|
 | `schema` | `type[T]` | *(required)* | A class decorated with `@fm.generable()`. The model's output is constrained to this shape. |
 | `retries` | `int` | `3` | Number of retry attempts for transient errors (`TimeoutError`, `ConnectionError`, `OSError`). Non-transient errors (e.g., `TypeError`, `ValueError`) fail immediately. |
-| `debug_timing` | `bool` | `False` | When `True`, logs extraction time and input length to the `silicon_refinery` logger. |
+| `debug_timing` | `bool` | `False` | When `True`, logs extraction time and input length to the `fmtools` logger. |
 
 #### How it works
 
@@ -612,7 +612,7 @@ This example reads the synthetic `medical_notes.csv` dataset and extracts struct
 import asyncio
 import csv
 import apple_fm_sdk as fm
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
 @fm.generable()
 class MedicalRecord:
@@ -646,8 +646,8 @@ asyncio.run(main())
 
 ### 2. `stream_extract` — Concurrent Async Streaming
 
-**Module:** `silicon_refinery.async_generators`
-**Import:** `from silicon_refinery import stream_extract`
+**Module:** `fmtools.async_generators`
+**Import:** `from fmtools import stream_extract`
 
 An asynchronous generator that processes massive data streams through the local model, yielding structured objects one at a time. Supports line-level chunking, four session history modes, and concurrent `imap_unordered`-style parallel extraction.
 
@@ -656,7 +656,7 @@ An asynchronous generator that processes massive data streams through the local 
 ```python
 # This snippet is runnable as-is and prints the current stream_extract signature.
 from inspect import signature
-from silicon_refinery import stream_extract
+from fmtools import stream_extract
 
 print(signature(stream_extract))
 # Actual output:
@@ -701,7 +701,7 @@ Default concurrency is `min(os.cpu_count(), 4)` — the Neural Engine doesn't sc
 import asyncio
 import csv
 import apple_fm_sdk as fm
-from silicon_refinery import stream_extract
+from fmtools import stream_extract
 
 @fm.generable()
 class Feedback:
@@ -735,8 +735,8 @@ asyncio.run(main())
 
 ### 3. `Source >> Extract >> Sink` — Composable Pipelines
 
-**Module:** `silicon_refinery.pipeline`
-**Import:** `from silicon_refinery import Source, Extract, Sink`
+**Module:** `fmtools.pipeline`
+**Import:** `from fmtools import Source, Extract, Sink`
 
 A declarative ETL pipeline using Python's `>>` operator. Data flows from `Source` through `Extract` (LLM inference) into `Sink` (output callback). The pipeline streams results without buffering.
 
@@ -767,7 +767,7 @@ A declarative ETL pipeline using Python's `>>` operator. Data flows from `Source
 import asyncio
 import csv
 import apple_fm_sdk as fm
-from silicon_refinery import Source, Extract, Sink
+from fmtools import Source, Extract, Sink
 
 @fm.generable()
 class LogEntry:
@@ -807,8 +807,8 @@ asyncio.run(main())
 
 ### 4. `@enhanced_debug` — AI Crash Analysis
 
-**Module:** `silicon_refinery.debugging`
-**Import:** `from silicon_refinery import enhanced_debug`
+**Module:** `fmtools.debugging`
+**Import:** `from fmtools import enhanced_debug`
 
 A decorator that catches exceptions, prints the standard Python traceback, and then invokes the Neural Engine to perform an automated root-cause analysis. Works with both sync and async functions.
 
@@ -817,7 +817,7 @@ A decorator that catches exceptions, prints the standard Python traceback, and t
 ```python
 # This snippet is runnable as-is and prints the current enhanced_debug signature.
 from inspect import signature
-from silicon_refinery import enhanced_debug
+from fmtools import enhanced_debug
 
 print(signature(enhanced_debug))
 # Actual output:
@@ -838,7 +838,7 @@ print(signature(enhanced_debug))
 
 1. The standard Python traceback is printed to stderr
 2. A structured debug query is sent to the on-device Foundation Model with strict evidence-based instructions and traceback context
-3. If the SDK raises `apple_fm_sdk.ExceededContextWindowSizeError`, SiliconRefinery automatically retries with a smaller tail-prioritized traceback payload
+3. If the SDK raises `apple_fm_sdk.ExceededContextWindowSizeError`, FMTools automatically retries with a smaller tail-prioritized traceback payload
 4. A structured forensic `DebuggingAnalysis` is generated containing:
    - `error_summary` — Brief description of what went wrong
    - `possible_causes` — List of likely root causes
@@ -853,7 +853,7 @@ print(signature(enhanced_debug))
 
 ```
 ==================================================
-SiliconRefinery AI Debug Analysis (Certainty: HIGH, Severity: MEDIUM)
+FMTools AI Debug Analysis (Certainty: HIGH, Severity: MEDIUM)
 ==================================================
 Exception: TypeError: can only concatenate str (not 'int') to str
 Function: process_data
@@ -875,7 +875,7 @@ A [sample generated prompt file](use_cases/09_enhanced_debugging/sample_crash_re
 
 ```python
 from pathlib import Path
-from silicon_refinery import enhanced_debug
+from fmtools import enhanced_debug
 
 PROMPT_PATH = Path("crash_report_for_llm.txt")
 if PROMPT_PATH.exists():
@@ -896,7 +896,7 @@ print("prompt_exists=", PROMPT_PATH.exists())
 print("prompt_first_line=", PROMPT_PATH.read_text(encoding="utf-8").splitlines()[0])
 
 # Actual output:
-# [stdout] SiliconRefinery AI Debug Analysis (Certainty: HIGH)
+# [stdout] FMTools AI Debug Analysis (Certainty: HIGH)
 # [stdout] Exception: TypeError: can only concatenate str (not 'int') to str
 # [stdout] Function: process_data
 # [stdout] Context retries: 0
@@ -909,7 +909,7 @@ print("prompt_first_line=", PROMPT_PATH.read_text(encoding="utf-8").splitlines()
 # [stdout] prompt_first_line= I encountered a crash in my Python application.
 # [stderr] --- Exception caught in 'process_data' ---
 # [stderr] TypeError: can only concatenate str (not 'int') to str
-# [stderr] SiliconRefinery is analyzing the crash locally via Neural Engine...
+# [stderr] FMTools is analyzing the crash locally via Neural Engine...
 ```
 
 **Run it:** `python use_cases/09_enhanced_debugging/example.py`
@@ -918,8 +918,8 @@ print("prompt_first_line=", PROMPT_PATH.read_text(encoding="utf-8").splitlines()
 
 ### 5. Polars `.local_llm` Extension
 
-**Module:** `silicon_refinery.polars_ext`
-**Import:** `from silicon_refinery.polars_ext import LocalLLMExpr`
+**Module:** `fmtools.polars_ext`
+**Import:** `from fmtools.polars_ext import LocalLLMExpr`
 
 Registers the `.local_llm` namespace directly onto Polars expressions, allowing you to run on-device LLM inference inside `df.select()` or `df.with_columns()` calls. Each row gets its own `LanguageModelSession` (preventing context window explosion), and rows within a batch are processed concurrently via `asyncio.Semaphore(4)`.
 
@@ -928,7 +928,7 @@ Registers the `.local_llm` namespace directly onto Polars expressions, allowing 
 ```python
 import polars as pl
 import apple_fm_sdk as fm
-from silicon_refinery.polars_ext import LocalLLMExpr  # registers the namespace
+from fmtools.polars_ext import LocalLLMExpr  # registers the namespace
 
 @fm.generable()
 class TicketSchema:
@@ -965,7 +965,7 @@ The result column contains JSON strings. Parse them with `pl.col("extracted_json
 ```python
 import polars as pl
 import apple_fm_sdk as fm
-from silicon_refinery.polars_ext import LocalLLMExpr
+from fmtools.polars_ext import LocalLLMExpr
 
 @fm.generable()
 class Ticket:
@@ -988,8 +988,8 @@ print(enriched_df.select(["ticket_id", "email_subject", "extracted_json"]))
 
 ### 6. DSPy `AppleFMLM` Provider
 
-**Module:** `silicon_refinery.dspy_ext`
-**Import:** `from silicon_refinery.dspy_ext import AppleFMLM`
+**Module:** `fmtools.dspy_ext`
+**Import:** `from fmtools.dspy_ext import AppleFMLM`
 
 A custom `dspy.LM` subclass that routes all inference through the local Apple Foundation Model. This lets you use DSPy's full suite of prompt compilers, Chain-of-Thought reasoning, and agentic workflows — all running on free Apple hardware with zero cloud dependency.
 
@@ -997,7 +997,7 @@ A custom `dspy.LM` subclass that routes all inference through the local Apple Fo
 
 ```python
 import dspy
-from silicon_refinery.dspy_ext import AppleFMLM
+from fmtools.dspy_ext import AppleFMLM
 
 dspy.settings.configure(lm=AppleFMLM())
 
@@ -1020,7 +1020,7 @@ print(result.summary, result.priority)
 ```python
 import csv
 import dspy
-from silicon_refinery.dspy_ext import AppleFMLM
+from fmtools.dspy_ext import AppleFMLM
 
 class SupportClassifier(dspy.Module):
     def __init__(self):
@@ -1047,10 +1047,10 @@ with open("datasets/support_tickets.csv", newline="") as f:
 
 ### 7. FastAPI Integration
 
-**Module:** Uses `silicon_refinery.decorators` with FastAPI
-**Install:** `uv pip install silicon-refinery[api]`
+**Module:** Uses `fmtools.decorators` with FastAPI
+**Install:** `uv pip install fmtools[api]`
 
-Turn SiliconRefinery into a local REST API microservice. Because `@local_extract` returns an `async` function, it integrates natively with FastAPI's async request handling.
+Turn FMTools into a local REST API microservice. Because `@local_extract` returns an `async` function, it integrates natively with FastAPI's async request handling.
 
 #### Full example — Document extraction API
 
@@ -1058,9 +1058,9 @@ Turn SiliconRefinery into a local REST API microservice. Because `@local_extract
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import apple_fm_sdk as fm
-from silicon_refinery import local_extract
+from fmtools import local_extract
 
-app = FastAPI(title="SiliconRefinery Extraction API")
+app = FastAPI(title="FMTools Extraction API")
 
 class ExtractionRequest(BaseModel):
     document_text: str
@@ -1130,7 +1130,7 @@ The repository includes 9 use cases plus a broad standalone example catalog (14 
 | [`examples/arrow_bridge.py`](examples/arrow_bridge.py) | Arrow IPC file/buffer/stream round trips |
 | [`examples/code_auditor.py`](examples/code_auditor.py) | On-device code auditing APIs |
 | [`examples/examples_notebook.py`](examples/examples_notebook.py) | Comprehensive marimo notebook covering `examples/` and `use_cases/*/example.py` |
-| [`examples/toga_local_chat_app/`](examples/toga_local_chat_app/) | `SiliconRefineryChat`: Toga + Briefcase local chat app with vertical chat tabs, steering interjection reruns, sqlite memory, and `/help` `/new` `/clear` `/export` |
+| [`examples/toga_local_chat_app/`](examples/toga_local_chat_app/) | `FMChat`: Toga + Briefcase local chat app with vertical chat tabs, steering interjection reruns, sqlite memory, and `/help` `/new` `/clear` `/export` |
 
 All SDK-dependent examples and wrapper APIs use `AppleFMSetupError` for
 consistent, actionable setup failures.
@@ -1157,7 +1157,7 @@ See [`datasets/README.md`](datasets/README.md) for details. Datasets were create
 
 ## Benchmarks & Empirical Results
 
-Two dedicated use cases profile SiliconRefinery's performance characteristics.
+Two dedicated use cases profile FMTools's performance characteristics.
 
 ### Test environment
 
@@ -1241,7 +1241,7 @@ When context matters, use `history_mode="keep"`, `"hybrid"`, or `"compact"`.
 
 ### Why `asyncio` everywhere?
 
-The Apple FM SDK's `session.respond()` is `async`. Rather than fighting this with `asyncio.run()` wrappers, SiliconRefinery embraces it:
+The Apple FM SDK's `session.respond()` is `async`. Rather than fighting this with `asyncio.run()` wrappers, FMTools embraces it:
 
 - `@local_extract` returns an `async` function
 - `stream_extract` is an `AsyncGenerator`
@@ -1259,7 +1259,7 @@ The Apple FM SDK's `session.respond()` is `async`. Rather than fighting this wit
 ### Project structure
 
 ```
-silicon_refinery/
+fmtools/
     __init__.py          # Public API exports
     decorators.py        # @local_extract decorator
     async_generators.py  # stream_extract async generator
@@ -1293,17 +1293,17 @@ examples/                # 14 scripts + marimo notebook + desktop app
 ### Phase 4 Delivered
 
 The following features are now implemented and covered by tests:
-- `sqlite3` extraction cache (`silicon_refinery.cache`)
-- Pluggable backend protocols (`silicon_refinery.protocols`)
-- IO adapters including trio-style channels (`silicon_refinery.adapters`)
-- Context-scoped sessions via `contextvars` (`silicon_refinery._context`)
-- Free-threading helpers (`silicon_refinery._threading`)
-- `mmap` sliding-window scanner (`silicon_refinery.scanner`)
-- Hot-folder watcher daemon (`silicon_refinery.watcher`)
-- Runtime diagnostics (`silicon_refinery._jit`)
-- Arrow IPC + Polars bridge (`silicon_refinery.arrow_bridge`)
-- Functional pipeline API (`silicon_refinery.functional`)
-- On-device code auditor (`silicon_refinery.auditor`)
+- `sqlite3` extraction cache (`fmtools.cache`)
+- Pluggable backend protocols (`fmtools.protocols`)
+- IO adapters including trio-style channels (`fmtools.adapters`)
+- Context-scoped sessions via `contextvars` (`fmtools._context`)
+- Free-threading helpers (`fmtools._threading`)
+- `mmap` sliding-window scanner (`fmtools.scanner`)
+- Hot-folder watcher daemon (`fmtools.watcher`)
+- Runtime diagnostics (`fmtools._jit`)
+- Arrow IPC + Polars bridge (`fmtools.arrow_bridge`)
+- Functional pipeline API (`fmtools.functional`)
+- On-device code auditor (`fmtools.auditor`)
 
 ### Next Priorities (Not Yet Implemented)
 
@@ -1313,14 +1313,14 @@ The following adapter targets are planned and are not part of the completed Phas
 - `aiofiles` for async file I/O
 - `websockets` for real-time data feeds
 
-### SiliconRefineryChat App Roadmap (`examples/toga_local_chat_app`)
+### FMChat App Roadmap (`examples/toga_local_chat_app`)
 
 - TODO: Add support for attachments in `examples/toga_local_chat_app` with a nonblocking ingest pipeline and streaming-safe UI integration.
 - TODO: Build conversation-query mode so users can start a chat that queries the sqlite database containing all prior conversations.
-- TODO: Implement durable memory behavior for SiliconRefineryChat so relevant context can persist and be reused safely across sessions.
+- TODO: Implement durable memory behavior for FMChat so relevant context can persist and be reused safely across sessions.
 - TODO: Harden context compaction and add targeted tests for guardrail behavior and error handling paths in the desktop chat runtime.
 
-### SiliconRefinery Python Library Roadmap (`silicon_refinery/`)
+### FMTools Python Library Roadmap (`fmtools/`)
 
 - TODO: Validate API behavior on diverse real-world datasets and production-like workloads, then harden and flesh out the Python library based on findings.
 - TODO: Experiment with scaffolding a local "mixture of experts" inference pipeline + API for user-query routing/power, with both synchronous and asynchronous coverage.
@@ -1328,7 +1328,7 @@ The following adapter targets are planned and are not part of the completed Phas
 
 ### Free-threading & subinterpreters (PEP 703/684)
 
-Python 3.13t/3.14t introduces experimental GIL-free execution. SiliconRefinery's `stream_extract(concurrency=N)` is architected to exploit this — if the Apple FM SDK's C extensions release the GIL, true thread-level parallelism becomes possible on separate M-series cores.
+Python 3.13t/3.14t introduces experimental GIL-free execution. FMTools's `stream_extract(concurrency=N)` is architected to exploit this — if the Apple FM SDK's C extensions release the GIL, true thread-level parallelism becomes possible on separate M-series cores.
 
 Next, we plan to auto-switch to `asyncio.to_thread()` parallelism on free-threaded builds.
 
@@ -1347,18 +1347,18 @@ Add pluggable cache backends (SQLite, in-memory LRU, Redis) behind a common cach
 We welcome contributions. To get started:
 
 ```bash
-git clone https://github.com/adpena/silicon-refinery
-cd silicon-refinery
-uv run silicon-refinery setup   # Or: ./scripts/setup.sh
+git clone https://github.com/adpena/fmtools
+cd fmtools
+uv run fmtools setup   # Or: ./scripts/setup.sh
 
 # Development workflow
-uv run silicon-refinery check   # Full CI pipeline (lint + format + typecheck + tests)
+uv run fmtools check   # Full CI pipeline (lint + format + typecheck + tests)
 
 # Or run individually:
-uv run silicon-refinery lint        # uv run ruff check .
-uv run silicon-refinery format      # uv run ruff format .
-uv run silicon-refinery typecheck   # uv run ty check silicon_refinery/
-uv run silicon-refinery test        # uv run pytest tests/ -v (400+ tests, no Apple Silicon required)
+uv run fmtools lint        # uv run ruff check .
+uv run fmtools format      # uv run ruff format .
+uv run fmtools typecheck   # uv run ty check fmtools/
+uv run fmtools test        # uv run pytest tests/ -v (400+ tests, no Apple Silicon required)
 ```
 
 **Toolchain:**
@@ -1376,10 +1376,10 @@ If you have questions, ideas, or feedback:
 
 ## Acknowledgements
 
-SiliconRefinery is built on the [`python-apple-fm-sdk`](https://github.com/apple/python-apple-fm-sdk), which provides the Python bridge to Apple's Foundation Models framework.
+FMTools is built on the [`python-apple-fm-sdk`](https://github.com/apple/python-apple-fm-sdk), which provides the Python bridge to Apple's Foundation Models framework.
 
 Acknowledgements:
-- The **Apple Intelligence** and **Foundation Models** teams for designing a structured generation protocol (`@generable()`) that guarantees schema-valid outputs — the foundation that makes SiliconRefinery's type-safe extraction possible
+- The **Apple Intelligence** and **Foundation Models** teams for designing a structured generation protocol (`@generable()`) that guarantees schema-valid outputs — the foundation that makes FMTools's type-safe extraction possible
 - The **`python-apple-fm-sdk`** contributors for providing first-class `asyncio` support, making it natural to build high-throughput streaming pipelines
 - The macOS engineering teams for continuing to optimize the Neural Engine inference path, enabling the throughput numbers reported in our benchmarks
 

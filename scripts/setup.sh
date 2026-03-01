@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/setup.sh — One-command setup for SiliconRefinery development.
+# scripts/setup.sh — One-command setup for FMTools development.
 #
 # Usage:
 #   ./scripts/setup.sh            # Full setup (install all dependency groups)
@@ -17,7 +17,7 @@ case "$SHELL_NAME" in
     fish) RC_FILE="$HOME/.config/fish/config.fish" ;;
 esac
 
-echo "=== SiliconRefinery Setup ==="
+echo "=== FMTools Setup ==="
 echo ""
 
 # --- Parse flags ---
@@ -53,9 +53,9 @@ else
     echo "Skipping Apple FM SDK dependency group (--no-sdk)."
 fi
 
-# --- Install SiliconRefinery ---
+# --- Install FMTools ---
 echo ""
-echo "Installing SiliconRefinery in editable mode with dev dependencies..."
+echo "Installing FMTools in editable mode with dev dependencies..."
 cd "$REPO_ROOT"
 
 # Create venv if it doesn't exist
@@ -72,8 +72,8 @@ fi
 
 if [ "$INSTALL_CLI" = true ]; then
     echo ""
-    echo "Installing global silicon-refinery CLI (editable)..."
-    uv tool install --editable --force --from "$REPO_ROOT" silicon-refinery
+    echo "Installing global fmtools CLI (editable)..."
+    uv tool install --editable --force --from "$REPO_ROOT" fmtools
 
     echo "Ensuring uv tool bin directory is on PATH..."
     uv tool update-shell || true
@@ -81,13 +81,13 @@ fi
 
 echo ""
 echo "Verifying installation..."
-uv run python -c "import silicon_refinery; print('  silicon_refinery imported successfully')"
+uv run python -c "import fmtools; print('  fmtools imported successfully')"
 uv run ruff --version | sed 's/^/  /'
 uv run ty --version | sed 's/^/  /'
-if command -v silicon-refinery &>/dev/null; then
-    echo "  silicon-refinery available at: $(command -v silicon-refinery)"
+if command -v fmtools &>/dev/null; then
+    echo "  fmtools available at: $(command -v fmtools)"
 else
-    echo "  silicon-refinery not yet available in this shell PATH."
+    echo "  fmtools not yet available in this shell PATH."
     if [ -n "$RC_FILE" ]; then
         echo "  Open a new terminal session (or run: source $RC_FILE) and try again."
     else
@@ -100,8 +100,8 @@ echo "=== Setup complete ==="
 echo ""
 echo "Activate your environment:  source .venv/bin/activate"
 echo "Run tests:                  uv run pytest"
-echo "CLI (no activation needed): uv run silicon-refinery doctor"
-echo "Global CLI:                 silicon-refinery doctor"
+echo "CLI (no activation needed): uv run fmtools doctor"
+echo "Global CLI:                 fmtools doctor"
 echo "Lint:                       uv run ruff check ."
-echo "Type check:                 uv run ty check silicon_refinery/"
+echo "Type check:                 uv run ty check fmtools/"
 echo "Check prerequisites:        ./scripts/doctor.sh"

@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery.cache — sqlite3 extraction cache.
+Tests for fmtools.cache — sqlite3 extraction cache.
 
 Covers:
   - Cache hit / miss behaviour
@@ -22,7 +22,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.cache import (
+from fmtools.cache import (
     ExtractionCache,
     _cache_key,
     _schema_identifier,
@@ -31,7 +31,7 @@ from silicon_refinery.cache import (
     cached_local_extract,
     cached_stream_extract,
 )
-from silicon_refinery.exceptions import AppleFMSetupError
+from fmtools.exceptions import AppleFMSetupError
 
 from .conftest import MockSchema, make_mock_model, make_mock_session
 

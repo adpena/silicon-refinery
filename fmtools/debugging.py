@@ -14,7 +14,7 @@ from .protocols import create_model, create_session
 
 fm = importlib.import_module("apple_fm_sdk")
 
-logger = logging.getLogger("silicon_refinery.debug")
+logger = logging.getLogger("fmtools.debug")
 _SYNC_ANALYSIS_TIMEOUT_SECONDS = 30
 _DEBUG_QUERY_MAX_CHARS = 24_000
 _HANDOFF_QUERY_MAX_CHARS = 20_000
@@ -144,7 +144,7 @@ def _run_analysis_sync_best_effort(
         # asyncio.run() can fail if the current thread already has a running loop.
         pass
     except Exception:
-        logger.warning("[SiliconRefinery Debug] AI analysis failed.", exc_info=True)
+        logger.warning("[FMTools Debug] AI analysis failed.", exc_info=True)
         return
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
@@ -163,9 +163,9 @@ def _run_analysis_sync_best_effort(
             future.result(timeout=_SYNC_ANALYSIS_TIMEOUT_SECONDS)
         except concurrent.futures.TimeoutError:
             future.cancel()
-            logger.warning("[SiliconRefinery Debug] AI analysis timed out.")
+            logger.warning("[FMTools Debug] AI analysis timed out.")
         except Exception:
-            logger.warning("[SiliconRefinery Debug] AI analysis failed.", exc_info=True)
+            logger.warning("[FMTools Debug] AI analysis failed.", exc_info=True)
     finally:
         # Do not block original exception propagation on background analysis shutdown.
         executor.shutdown(wait=False, cancel_futures=True)
@@ -210,7 +210,7 @@ def enhanced_debug(
                             prompt_log_level,
                         )
                     except Exception:
-                        logger.warning("[SiliconRefinery Debug] AI analysis failed.", exc_info=True)
+                        logger.warning("[FMTools Debug] AI analysis failed.", exc_info=True)
                     raise
 
             return async_wrapper
@@ -247,7 +247,7 @@ def _resolve_log_level(level: str | int, fallback: int = logging.ERROR) -> int:
         if isinstance(resolved, int):
             return resolved
     logger.warning(
-        "[SiliconRefinery Debug] Unsupported log level '%s'; falling back to %s.",
+        "[FMTools Debug] Unsupported log level '%s'; falling back to %s.",
         level,
         logging.getLevelName(fallback),
     )
@@ -762,7 +762,7 @@ def _write_prompt_output(prompt_content: str, prompt_to: str, prompt_log_level: 
         print(f"Generated AI Agent Prompt written to: {prompt_path}\n")
     except (OSError, TypeError, ValueError):
         logger.warning(
-            "[SiliconRefinery Debug] Could not write prompt_to path '%s'.",
+            "[FMTools Debug] Could not write prompt_to path '%s'.",
             prompt_to,
             exc_info=True,
         )
@@ -821,7 +821,7 @@ async def _handle_exception(
         model=model,
     )
 
-    print("SiliconRefinery is analyzing the crash locally via Neural Engine...", file=sys.stderr)
+    print("FMTools is analyzing the crash locally via Neural Engine...", file=sys.stderr)
 
     try:
         payload_candidates: list[tuple[str, int, int]] = []
@@ -865,7 +865,7 @@ async def _handle_exception(
                     context_retries += 1
                     print(
                         (
-                            "[SiliconRefinery Debug] Context window overflow detected; "
+                            "[FMTools Debug] Context window overflow detected; "
                             "retrying with smaller traceback payload "
                             f"({attempt_index}/{len(payload_candidates) - 1})."
                         ),
@@ -893,7 +893,7 @@ async def _handle_exception(
 
         output = [
             "\n" + "=" * 50,
-            f"SiliconRefinery AI Debug Analysis (Certainty: {certainty_level}, Severity: {severity})",
+            f"FMTools AI Debug Analysis (Certainty: {certainty_level}, Severity: {severity})",
             "=" * 50,
             f"Exception: {exception_summary}",
             f"Function: {func_name}",
@@ -940,7 +940,7 @@ async def _handle_exception(
             _log_text(output_str, summary_log_level, fallback=logging.ERROR)
         elif summary_to is not None:
             logger.warning(
-                "[SiliconRefinery Debug] Unsupported summary_to value '%s'; expected 'stdout', 'stderr', 'log', or None.",
+                "[FMTools Debug] Unsupported summary_to value '%s'; expected 'stdout', 'stderr', 'log', or None.",
                 summary_to,
             )
 
@@ -968,14 +968,14 @@ async def _handle_exception(
                         handoff_retries += 1
                         print(
                             (
-                                "[SiliconRefinery Debug] Context window overflow during handoff generation; "
+                                "[FMTools Debug] Context window overflow during handoff generation; "
                                 f"retrying with smaller payload ({attempt_index}/{len(handoff_candidates) - 1})."
                             ),
                             file=sys.stderr,
                         )
                         continue
                     logger.warning(
-                        "[SiliconRefinery Debug] Handoff generation failed; using deterministic fallback.",
+                        "[FMTools Debug] Handoff generation failed; using deterministic fallback.",
                         exc_info=True,
                     )
                     break
@@ -994,4 +994,4 @@ async def _handle_exception(
             _write_prompt_output(prompt_content, prompt_to, prompt_log_level)
 
     except Exception as e:
-        print(f"SiliconRefinery AI analysis failed: {e}", file=sys.stderr)
+        print(f"FMTools AI analysis failed: {e}", file=sys.stderr)

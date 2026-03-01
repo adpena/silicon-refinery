@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery._jit — Runtime Diagnostics.
+Tests for fmtools._jit — Runtime Diagnostics.
 
 Covers:
   - Recording extraction metrics
@@ -20,7 +20,7 @@ import threading
 
 import pytest
 
-from silicon_refinery._jit import (
+from fmtools._jit import (
     DiagnosticCollector,
     diagnose,
     diagnostics,
@@ -136,7 +136,7 @@ class TestDiagnosticCollectorReportFormat:
 
         report = dc.report()
 
-        assert "SiliconRefinery Diagnostic Report" in report
+        assert "FMTools Diagnostic Report" in report
         assert "Total extractions : 2" in report
         assert "Cache hits        : 1" in report
         assert "Cache misses      : 1" in report

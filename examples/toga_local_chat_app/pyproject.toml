@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "silicon-refinery-chat"
+name = "fmchat"
 version = "0.0.217"
 description = "Realtime local Apple Foundation Models desktop chat app built with Toga + Briefcase."
 readme = "README.md"
@@ -26,18 +26,19 @@ where = ["src"]
 apple-fm-sdk = { git = "https://github.com/apple/python-apple-fm-sdk" }
 
 [tool.briefcase]
-project_name = "SiliconRefineryChat"
-bundle = "com.siliconrefinery"
+project_name = "FMChat"
+bundle = "com.fmtools"
 version = "0.0.217"
 license.file = "../../LICENSE"
-url = "https://github.com/adpena/silicon-refinery"
-author = "SiliconRefinery"
-author_email = "opensource@silicon-refinery.local"
+url = "https://github.com/adpena/fmtools"
+author = "FMTools"
+author_email = "opensource@fmtools.local"
 
-[tool.briefcase.app.silicon_refinery_chat]
-formal_name = "SiliconRefineryChat"
+[tool.briefcase.app.fmchat]
+formal_name = "FMChat"
 description = "Realtime local Apple FM chat with sqlite memory and streaming UX."
-sources = ["src/silicon_refinery_chat"]
+icon = "icons/fmchat"
+sources = ["src/fmchat"]
 requires = [
     "apple-fm-sdk @ git+https://github.com/apple/python-apple-fm-sdk.git",
     "toga-cocoa>=0.5.2",

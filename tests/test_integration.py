@@ -1,5 +1,5 @@
 """
-Integration tests for SiliconRefinery.
+Integration tests for FMTools.
 
 These tests verify end-to-end workflows across multiple modules,
 with all FM SDK calls mocked.
@@ -17,9 +17,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from silicon_refinery.async_generators import stream_extract
-from silicon_refinery.decorators import local_extract
-from silicon_refinery.pipeline import Extract, Sink, Source
+from fmtools.async_generators import stream_extract
+from fmtools.decorators import local_extract
+from fmtools.pipeline import Extract, Sink, Source
 
 from .conftest import MockSchema, make_mock_model, make_mock_session
 

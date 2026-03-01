@@ -1,5 +1,5 @@
 """
-Arrow bridge example for SiliconRefinery.
+Arrow bridge example for FMTools.
 
 Demonstrates Arrow IPC buffer/file round-trips and streaming writer usage.
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery.arrow_bridge import (
+    from fmtools.arrow_bridge import (
         ArrowStreamWriter,
         from_arrow_ipc,
         from_arrow_ipc_buffer,

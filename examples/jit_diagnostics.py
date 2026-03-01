@@ -1,5 +1,5 @@
 """
-Runtime diagnostics example for SiliconRefinery.
+Runtime diagnostics example for FMTools.
 
 Demonstrates `@diagnose` and the `diagnostics()` collector.
 """
@@ -11,7 +11,7 @@ import asyncio
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery._jit import diagnose, diagnostics
+    from fmtools._jit import diagnose, diagnostics
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("jit_diagnostics.py", exc)
 

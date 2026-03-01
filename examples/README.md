@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains runnable, focused examples for SiliconRefinery APIs.
+This directory contains runnable, focused examples for FMTools APIs.
 
 ## Prerequisites
 
@@ -12,11 +12,11 @@ source .venv/bin/activate
 ```
 
 These examples assume `apple_fm_sdk` is installed and the Foundation Model is
-available on your machine. (`silicon-refinery[api]` and
-`silicon-refinery[adapters]` extras do not install `apple_fm_sdk`.)
+available on your machine. (`fmtools[api]` and
+`fmtools[adapters]` extras do not install `apple_fm_sdk`.)
 
 All example scripts use a shared custom exception:
-- `silicon_refinery.exceptions.AppleFMSetupError`
+- `fmtools.exceptions.AppleFMSetupError`
 
 When setup checks fail, scripts print a standard troubleshooting checklist and
 exit gracefully.
@@ -25,13 +25,13 @@ For real trio-native channels, install the optional extra (the included
 `trio_adapter.py` demo also runs without trio):
 
 ```bash
-uv pip install silicon-refinery[adapters]
+uv pip install fmtools[adapters]
 ```
 
 For Arrow IPC examples:
 
 ```bash
-uv pip install silicon-refinery[arrow]
+uv pip install fmtools[arrow]
 ```
 
 For the marimo notebook:
@@ -44,14 +44,14 @@ marimo edit examples/examples_notebook.py
 CLI shortcuts:
 
 ```bash
-silicon-refinery example --list
-silicon-refinery example simple_inference
-silicon-refinery smoke
-silicon-refinery notebook
+fmtools example --list
+fmtools example simple_inference
+fmtools smoke
+fmtools notebook
 ```
 
 ```text
-Actual output excerpt from local run (`silicon-refinery example --list`):
+Actual output excerpt from local run (`fmtools example --list`):
 
 Available examples:
   arrow_bridge

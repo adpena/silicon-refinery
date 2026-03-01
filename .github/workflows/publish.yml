@@ -63,9 +63,9 @@ jobs:
       - name: Check if version already exists on PyPI
         id: pypi_check
         run: |
-          VERSION="$(ls dist/silicon_refinery-*.tar.gz | head -n1 | sed -E 's#dist/silicon_refinery-(.+)\.tar\.gz#\1#')"
+          VERSION="$(ls dist/fmtools-*.tar.gz | head -n1 | sed -E 's#dist/fmtools-(.+)\.tar\.gz#\1#')"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          if curl -fsSL "https://pypi.org/pypi/silicon-refinery/${VERSION}/json" >/dev/null; then
+          if curl -fsSL "https://pypi.org/pypi/fmtools/${VERSION}/json" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Version ${VERSION} already exists on PyPI; skipping upload."
           else

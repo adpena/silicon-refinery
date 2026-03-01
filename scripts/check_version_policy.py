@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate SiliconRefinery version synchronization and release bump policy."""
+"""Validate FMTools version synchronization and release bump policy."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""SiliconRefineryChat app package."""
+"""FMChat app package."""
 
 from .app import main
 

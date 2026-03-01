@@ -1,6 +1,6 @@
-# SiliconRefineryChat (Toga + Briefcase)
+# FMChat (Toga + Briefcase)
 
-Standalone repo mirror: [adpena/silicon-refinery-chat](https://github.com/adpena/silicon-refinery-chat)
+Standalone repo mirror: [adpena/fmchat](https://github.com/adpena/fmchat)
 
 A desktop app for Apple Foundation Models that runs fully local and is designed for realtime UX.
 It is both a production-oriented local chat application and a reference implementation for Python developers who want to understand and ship SDK-powered chat workflows quickly.
@@ -28,19 +28,19 @@ briefcase dev
 
 ## Run from repository root
 
-From `/Users/adpena/PycharmProjects/silicon-refinery`:
+From `/Users/adpena/PycharmProjects/fmtools`:
 
 ```bash
-silicon-refinery chat
+fmtools chat
 
 # or the explicit uv/briefcase invocation:
 uv run --project examples/toga_local_chat_app --directory examples/toga_local_chat_app briefcase dev
 ```
 
 ```text
-Actual output excerpt from local run (`silicon-refinery chat --help`):
+Actual output excerpt from local run (`fmtools chat --help`):
 
-Usage: silicon-refinery chat [OPTIONS] [APP_ARGS]...
+Usage: fmtools chat [OPTIONS] [APP_ARGS]...
 Options:
   --python
   --no-run
@@ -49,21 +49,21 @@ Options:
   -h, --help
 ```
 
-`silicon-refinery chat` now prefers free-threaded CPython (`3.14t` then `3.13t`) automatically and only falls back to standard-GIL when no no-GIL runtime is available.
+`fmtools chat` now prefers free-threaded CPython (`3.14t` then `3.13t`) automatically and only falls back to standard-GIL when no no-GIL runtime is available.
 
 For maximum demo stability, force standard-GIL directly:
 
 ```bash
-silicon-refinery chat --standard-gil
+fmtools chat --standard-gil
 ```
 
 Or run without Briefcase packaging:
 
 ```bash
-silicon-refinery chat --python
+fmtools chat --python
 
 # or:
-uv run --project examples/toga_local_chat_app --directory examples/toga_local_chat_app python -m silicon_refinery_chat
+uv run --project examples/toga_local_chat_app --directory examples/toga_local_chat_app python -m fmchat
 ```
 
 ## Local run without Briefcase packaging
@@ -71,7 +71,7 @@ uv run --project examples/toga_local_chat_app --directory examples/toga_local_ch
 ```bash
 cd examples/toga_local_chat_app
 source .venv/bin/activate
-PYTHONPATH=src python -m silicon_refinery_chat
+PYTHONPATH=src python -m fmchat
 ```
 
 ## Package with Briefcase
@@ -89,7 +89,7 @@ export CHAT_SIGN_IDENTITY="${CHAT_SIGN_IDENTITY:?Set your Developer ID identity 
 export APPLE_NOTARY_PROFILE="${APPLE_NOTARY_PROFILE:?Set your stored notary profile name first}"
 briefcase package macOS --identity "$CHAT_SIGN_IDENTITY" --no-notarize
 APPLE_NOTARY_PROFILE="$APPLE_NOTARY_PROFILE" \
-  ../../scripts/notarize_macos_artifact.sh --artifact "$(ls -t dist/SiliconRefineryChat-*.dmg | head -n 1)" --app-name "SiliconRefineryChat.app"
+  ../../scripts/notarize_macos_artifact.sh --artifact "$(ls -t dist/FMChat-*.dmg | head -n 1)" --app-name "FMChat.app"
 ```
 
 `--adhoc-sign` artifacts are local-only and will trigger Gatekeeper warnings on other machines. Use Developer ID + notarization for user-facing releases.

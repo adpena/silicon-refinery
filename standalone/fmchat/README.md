@@ -1,10 +1,10 @@
-# SiliconRefineryChat
+# FMChat
 
 Standalone macOS desktop app for fully local Apple Foundation Models chat, built with BeeWare Toga + Briefcase.
 
 This repository is synchronized automatically from the parent project:
 
-- Parent repo: [adpena/silicon-refinery](https://github.com/adpena/silicon-refinery)
+- Parent repo: [adpena/fmtools](https://github.com/adpena/fmtools)
 - Source path: `examples/toga_local_chat_app`
 - Automation: release pipeline in parent repo (`scripts/publish_chat_repo.sh`)
 
@@ -20,19 +20,19 @@ This repository is synchronized automatically from the parent project:
 ## Install via Homebrew
 
 ```bash
-brew tap adpena/silicon-refinery https://github.com/adpena/homebrew-silicon-refinery
-brew install silicon-refinery-chat
-silicon-refinery-chat
+brew tap adpena/fmtools https://github.com/adpena/homebrew-fmtools
+brew install fmchat
+fmchat
 ```
 
 ```text
 Actual output excerpt from local run:
 
-silicon-refinery-chat 0.0.217 installed=0.0.217
-silicon-refinery 0.0.217 installed=0.0.217
+fmchat 0.0.217 installed=0.0.217
+fmtools 0.0.217 installed=0.0.217
 ```
 
-This installs `SiliconRefineryChat.app` and a `silicon-refinery-chat` launcher command.
+This installs `FMChat.app` and a `fmchat` launcher command.
 
 ## Local development
 
@@ -54,7 +54,7 @@ export CHAT_SIGN_IDENTITY="${CHAT_SIGN_IDENTITY:?Set your Developer ID identity 
 export APPLE_NOTARY_PROFILE="${APPLE_NOTARY_PROFILE:?Set your stored notary profile name first}"
 uv run briefcase package macOS --identity "$CHAT_SIGN_IDENTITY" --no-notarize
 APPLE_NOTARY_PROFILE="$APPLE_NOTARY_PROFILE" \
-  ./scripts/notarize_macos_artifact.sh --artifact "$(ls -t dist/SiliconRefineryChat-*.dmg | head -n 1)" --app-name "SiliconRefineryChat.app"
+  ./scripts/notarize_macos_artifact.sh --artifact "$(ls -t dist/FMChat-*.dmg | head -n 1)" --app-name "FMChat.app"
 ```
 
 Packaged artifacts are published under `artifacts/` in this repo and attached to GitHub Releases.
@@ -64,7 +64,7 @@ The parent publish pipeline now blocks release uploads for untrusted artifacts b
 
 ## Versioning
 
-`silicon-refinery-chat` stays version-locked with `silicon-refinery` and uses thousandth-place increments (`0.0.216` -> `0.0.217`).
+`fmchat` stays version-locked with `fmtools` and uses thousandth-place increments (`0.0.216` -> `0.0.217`).
 
 ## License
 

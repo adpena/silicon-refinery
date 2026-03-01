@@ -1,6 +1,6 @@
 """
 Runtime Diagnostics — performance counters and diagnostic reporting for
-profiling SiliconRefinery extraction pipelines.
+profiling FMTools extraction pipelines.
 
 All facilities are stdlib-only (time, resource, threading, dataclasses, functools).
 """
@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 F = TypeVar("F", bound="Callable[..., Any]")
 
@@ -152,7 +152,7 @@ class DiagnosticCollector:
         """Return a human-readable diagnostic report string."""
         m = self.metrics
         lines = [
-            "SiliconRefinery Diagnostic Report",
+            "FMTools Diagnostic Report",
             "=" * 40,
             f"Total extractions : {m.total_extractions}",
             f"Total time        : {m.total_time_seconds:.3f}s",

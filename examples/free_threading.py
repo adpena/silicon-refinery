@@ -1,5 +1,5 @@
 """
-Free-threading utilities example for SiliconRefinery.
+Free-threading utilities example for FMTools.
 
 Demonstrates runtime GIL detection and thread-safe counters/containers.
 """
@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery._threading import (
+    from fmtools._threading import (
         AtomicCounter,
         ThreadSafeDict,
         get_gil_status,

@@ -25,7 +25,7 @@ class AppleFMSetupError(RuntimeError):
 
 def troubleshooting_message(context: str, reason: str | None = None) -> str:
     """Build a standard setup troubleshooting message."""
-    label = context.strip() if context.strip() else "silicon_refinery"
+    label = context.strip() if context.strip() else "fmtools"
     lines = [f"[{label}] Apple Foundation Models setup check failed."]
     if reason:
         lines.append(f"Reason: {reason}")
@@ -40,7 +40,7 @@ def troubleshooting_message(context: str, reason: str | None = None) -> str:
             '   uv run python -c "import apple_fm_sdk as fm; print(fm.__name__)"',
             "5. Verify model availability:",
             '   uv run python -c "import apple_fm_sdk as fm; m=fm.SystemLanguageModel(); print(m.is_available())"',
-            "6. Run diagnostics: uv run silicon-refinery doctor",
+            "6. Run diagnostics: uv run fmtools doctor",
         ]
     )
     return "\n".join(lines)

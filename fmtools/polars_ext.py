@@ -10,7 +10,7 @@ import polars as pl
 
 from .protocols import create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 _loop = None
 _thread = None
@@ -84,7 +84,7 @@ class LocalLLMExpr:
                             return json.dumps(res_dict, default=str)
                         except Exception:
                             logger.exception(
-                                "[SiliconRefinery Polars] Failed to process row: %s",
+                                "[FMTools Polars] Failed to process row: %s",
                                 repr(val)[:200],
                             )
                             return None

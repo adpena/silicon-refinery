@@ -3,12 +3,12 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="$ROOT_DIR/examples/toga_local_chat_app"
-TEMPLATE_DIR="$ROOT_DIR/standalone/silicon-refinery-chat"
+TEMPLATE_DIR="$ROOT_DIR/standalone/fmchat"
 
-CHAT_REPO="${CHAT_REPO:-adpena/silicon-refinery-chat}"
-CHAT_APP_NAME="${CHAT_APP_NAME:-SiliconRefineryChat}"
-CHAT_REPO_DESCRIPTION="${CHAT_REPO_DESCRIPTION:-Standalone macOS app for SiliconRefineryChat (Toga + Briefcase).}"
-CHAT_REPO_DIR="${CHAT_REPO_DIR:-$HOME/.cache/silicon-refinery-chat-repo}"
+CHAT_REPO="${CHAT_REPO:-adpena/fmchat}"
+CHAT_APP_NAME="${CHAT_APP_NAME:-FMChat}"
+CHAT_REPO_DESCRIPTION="${CHAT_REPO_DESCRIPTION:-Standalone macOS app for FMChat (Toga + Briefcase).}"
+CHAT_REPO_DIR="${CHAT_REPO_DIR:-$HOME/.cache/fmchat-repo}"
 CHAT_RELEASE_TAG="${CHAT_RELEASE_TAG:-}"
 CHAT_RELEASE_TITLE="${CHAT_RELEASE_TITLE:-}"
 CHAT_RELEASE_NOTES="${CHAT_RELEASE_NOTES:-}"
@@ -43,9 +43,9 @@ USAGE
 }
 
 inject_chat_launcher_shim() {
-  local bundle_dir="$APP_DIR/build/silicon_refinery_chat/macos/app/$CHAT_APP_BUNDLE_NAME"
+  local bundle_dir="$APP_DIR/build/fmchat/macos/app/$CHAT_APP_BUNDLE_NAME"
   local resources_dir="$bundle_dir/Contents/Resources"
-  local launcher_path="$resources_dir/silicon-refinery-chat"
+  local launcher_path="$resources_dir/fmchat"
 
   if [[ ! -d "$resources_dir" ]]; then
     echo "Error: expected macOS app bundle at $bundle_dir" >&2
@@ -79,10 +79,10 @@ SH
 }
 
 cleanup_stale_chat_launcher_shims() {
-  local bundle_dir="$APP_DIR/build/silicon_refinery_chat/macos/app/$CHAT_APP_BUNDLE_NAME"
+  local bundle_dir="$APP_DIR/build/fmchat/macos/app/$CHAT_APP_BUNDLE_NAME"
   rm -f \
-    "$bundle_dir/Contents/MacOS/silicon-refinery-chat" \
-    "$bundle_dir/Contents/Resources/silicon-refinery-chat"
+    "$bundle_dir/Contents/MacOS/fmchat" \
+    "$bundle_dir/Contents/Resources/fmchat"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -175,7 +175,7 @@ verify_release_artifact_trust() {
         exit 1
       fi
 
-      app_mount="$(mktemp -d /tmp/silicon-refinery-chat-release.XXXXXX)"
+      app_mount="$(mktemp -d /tmp/fmchat-release.XXXXXX)"
       attached=0
       cleanup_verify_artifact() {
         if [[ "$attached" == "1" ]]; then
@@ -334,7 +334,7 @@ if [[ -z "$CHAT_RELEASE_TITLE" ]]; then
   CHAT_RELEASE_TITLE="${CHAT_APP_NAME} ${CHAT_RELEASE_TAG}"
 fi
 if [[ -z "$CHAT_RELEASE_NOTES" ]]; then
-  CHAT_RELEASE_NOTES="Automated sync from adpena/silicon-refinery (${CHAT_APP_NAME}, version ${APP_VERSION})."
+  CHAT_RELEASE_NOTES="Automated sync from adpena/fmtools (${CHAT_APP_NAME}, version ${APP_VERSION})."
 fi
 
 log "Target repo: ${CHAT_REPO}"
@@ -379,7 +379,7 @@ SIGNING_PERFORMED=0
 if [[ "$CHAT_SKIP_BUILD" != "1" ]]; then
   log "Building macOS app artifact with Briefcase"
   uv sync --project "$APP_DIR" --directory "$APP_DIR"
-  BRIEFCASE_CREATE_DIR="$APP_DIR/build/silicon_refinery_chat/macos/app"
+  BRIEFCASE_CREATE_DIR="$APP_DIR/build/fmchat/macos/app"
   log "Recreating Briefcase scaffold to refresh metadata (version/name/signing params)"
   rm -rf "$BRIEFCASE_CREATE_DIR"
   uv run --project "$APP_DIR" --directory "$APP_DIR" briefcase create macOS --no-input
@@ -558,7 +558,7 @@ fi
 git -C "$CHAT_REPO_DIR" add -A
 if ! git -C "$CHAT_REPO_DIR" diff --cached --quiet; then
   SHORT_SHA="$(git -C "$ROOT_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
-  git -C "$CHAT_REPO_DIR" commit -m "Sync ${CHAT_APP_NAME} from silicon-refinery (${SHORT_SHA})"
+  git -C "$CHAT_REPO_DIR" commit -m "Sync ${CHAT_APP_NAME} from fmtools (${SHORT_SHA})"
   git -C "$CHAT_REPO_DIR" push origin main
 else
   log "No repo content changes detected"

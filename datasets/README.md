@@ -1,6 +1,6 @@
 # Sample Datasets
 
-These are **synthetic sample datasets** generated for use with SiliconRefinery's examples and use cases. They do not contain real data.
+These are **synthetic sample datasets** generated for use with FMTools's examples and use cases. They do not contain real data.
 
 | File | Schema | Used By | Description |
 |------|--------|---------|-------------|

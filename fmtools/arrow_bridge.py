@@ -1,8 +1,8 @@
 """
-Arrow IPC Bridge for SiliconRefinery.
+Arrow IPC Bridge for FMTools.
 
 Zero-copy data sharing between processes using Arrow IPC format. This enables
-SiliconRefinery to interoperate with Polars, Pandas, DuckDB, and any other
+FMTools to interoperate with Polars, Pandas, DuckDB, and any other
 Arrow-compatible tool without serialization overhead.
 
 All pyarrow and polars imports are lazy so the module can be imported without
@@ -19,7 +19,7 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 __all__ = [
     "ArrowStreamWriter",

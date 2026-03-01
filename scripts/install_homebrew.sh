@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/install_homebrew.sh — install SiliconRefinery via published Homebrew tap.
+# scripts/install_homebrew.sh — install FMTools via published Homebrew tap.
 #
 # Usage:
 #   ./scripts/install_homebrew.sh
@@ -7,11 +7,11 @@
 #   ./scripts/install_homebrew.sh --no-chat
 #
 # Defaults:
-#   tap-name = adpena/silicon-refinery
+#   tap-name = adpena/fmtools
 #
 set -euo pipefail
 
-TAP_NAME="adpena/silicon-refinery"
+TAP_NAME="adpena/fmtools"
 INSTALL_CHAT=1
 
 while [[ $# -gt 0 ]]; do
@@ -26,7 +26,7 @@ Usage: scripts/install_homebrew.sh [tap-name] [--no-chat]
 
 Examples:
   ./scripts/install_homebrew.sh
-  ./scripts/install_homebrew.sh adpena/silicon-refinery
+  ./scripts/install_homebrew.sh adpena/fmtools
   ./scripts/install_homebrew.sh --no-chat
 USAGE
       exit 0
@@ -42,15 +42,15 @@ TAP_USER="${TAP_NAME%%/*}"
 TAP_REPO="${TAP_NAME##*/}"
 TAP_FULL_REPO="${TAP_USER}/homebrew-${TAP_REPO}"
 TAP_URL="https://github.com/${TAP_FULL_REPO}"
-FORMULA_FQN="${TAP_NAME}/silicon-refinery"
-CASK_FQN="${TAP_NAME}/silicon-refinery-chat"
+FORMULA_FQN="${TAP_NAME}/fmtools"
+CASK_FQN="${TAP_NAME}/fmchat"
 
 if ! command -v brew >/dev/null 2>&1; then
   echo "Error: Homebrew is not installed. Install first: https://brew.sh" >&2
   exit 1
 fi
 
-echo "=== SiliconRefinery Homebrew Installer ==="
+echo "=== FMTools Homebrew Installer ==="
 echo "Tap:      $TAP_NAME"
 echo "Tap URL:  $TAP_URL"
 echo "Formula:  $FORMULA_FQN"
@@ -86,9 +86,9 @@ fi
 
 echo ""
 echo "Install complete."
-if command -v silicon-refinery >/dev/null 2>&1; then
-  echo "  silicon-refinery -> $(command -v silicon-refinery)"
-  silicon-refinery --help >/dev/null
+if command -v fmtools >/dev/null 2>&1; then
+  echo "  fmtools -> $(command -v fmtools)"
+  fmtools --help >/dev/null
   echo "  CLI check passed."
 else
   echo "  CLI not on PATH in this shell yet. Restart terminal/session."

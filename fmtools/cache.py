@@ -1,12 +1,12 @@
 """
-Content-addressable sqlite3 extraction cache for SiliconRefinery.
+Content-addressable sqlite3 extraction cache for FMTools.
 
 Memoises LLM extraction results so that repeated calls with identical
 (instructions, schema, input_text) triples return instantly from local storage
 instead of burning Neural Engine cycles.
 
 Usage:
-    from silicon_refinery.cache import ExtractionCache, cache_extract
+    from fmtools.cache import ExtractionCache, cache_extract
 
     cache = ExtractionCache()                       # default ~/.cache path
     result = await cache_extract(cache, session, text, schema)
@@ -34,12 +34,12 @@ from typing import Any, TypeVar, Union, cast
 from .exceptions import AppleFMSetupError, ensure_model_available
 from .protocols import ModelProtocol, create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
 
-_DEFAULT_DB_DIR = Path.home() / ".cache" / "silicon_refinery"
+_DEFAULT_DB_DIR = Path.home() / ".cache" / "fmtools"
 _DEFAULT_DB_PATH = _DEFAULT_DB_DIR / "extraction_cache.db"
 _DEFAULT_TTL_SECONDS = 86_400  # 24 hours
 
@@ -252,7 +252,7 @@ async def cache_extract(
             return _coerce_cached_value(schema, cached)
         except _CacheCoercionError as exc:
             logger.warning(
-                "[SiliconRefinery] Cache schema mismatch for key %s: %s. Recomputing.",
+                "[FMTools] Cache schema mismatch for key %s: %s. Recomputing.",
                 key,
                 exc,
             )
@@ -291,7 +291,7 @@ async def cached_stream_extract(
                     continue
                 except _CacheCoercionError as exc:
                     logger.warning(
-                        "[SiliconRefinery] Cache schema mismatch for key %s: %s. Recomputing.",
+                        "[FMTools] Cache schema mismatch for key %s: %s. Recomputing.",
                         key,
                         exc,
                     )
@@ -315,7 +315,7 @@ async def cached_stream_extract(
                 continue
             except _CacheCoercionError as exc:
                 logger.warning(
-                    "[SiliconRefinery] Cache schema mismatch for key %s: %s. Recomputing.",
+                    "[FMTools] Cache schema mismatch for key %s: %s. Recomputing.",
                     key,
                     exc,
                 )
@@ -382,7 +382,7 @@ def cached_local_extract(
                     return _coerce_cached_value(schema, cached)
                 except _CacheCoercionError as exc:
                     logger.warning(
-                        "[SiliconRefinery] Cache schema mismatch for key %s: %s. Recomputing.",
+                        "[FMTools] Cache schema mismatch for key %s: %s. Recomputing.",
                         key,
                         exc,
                     )
@@ -408,8 +408,7 @@ def cached_local_extract(
 
                     if debug_timing:
                         logger.info(
-                            "[SiliconRefinery] Extraction completed in %.3fs. "
-                            "Input length: %d chars.",
+                            "[FMTools] Extraction completed in %.3fs. Input length: %d chars.",
                             elapsed,
                             len(input_text),
                         )

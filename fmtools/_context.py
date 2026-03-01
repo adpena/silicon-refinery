@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 from .protocols import create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 # ---------------------------------------------------------------------------
 # Context variables
@@ -51,7 +51,7 @@ async def session_scope(
     Args:
         instructions: System instructions for the session.
         model: An existing backend model instance. If *None*, a model is
-            created via :func:`silicon_refinery.protocols.create_model`.
+            created via :func:`fmtools.protocols.create_model`.
 
     Yields:
         The backend session bound to this scope.

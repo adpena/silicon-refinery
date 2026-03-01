@@ -8,7 +8,7 @@ from typing import Any, TypeVar, cast
 from .exceptions import AppleFMSetupError, ensure_model_available
 from .protocols import ModelProtocol, create_model, create_session
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
@@ -77,7 +77,7 @@ def local_extract(
                     if debug_timing:
                         input_len = len(input_text)
                         logger.info(
-                            f"[SiliconRefinery] Extraction completed in {elapsed:.3f}s. Input length: {input_len} chars."
+                            f"[FMTools] Extraction completed in {elapsed:.3f}s. Input length: {input_len} chars."
                         )
 
                     return result

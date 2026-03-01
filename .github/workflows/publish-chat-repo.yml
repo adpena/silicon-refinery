@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   publish-chat-repo:
-    name: Sync + publish silicon-refinery-chat
+    name: Sync + publish fmchat
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,9 +31,9 @@ jobs:
       - name: Publish standalone chat repo
         env:
           GH_TOKEN: ${{ secrets.CHAT_REPO_GH_TOKEN }}
-          CHAT_REPO: adpena/silicon-refinery-chat
-          CHAT_APP_NAME: SiliconRefineryChat
-          CHAT_REPO_DESCRIPTION: Standalone macOS app for SiliconRefineryChat (Toga + Briefcase).
+          CHAT_REPO: adpena/fmchat
+          CHAT_APP_NAME: FMChat
+          CHAT_REPO_DESCRIPTION: Standalone macOS app for FMChat (Toga + Briefcase).
           # GitHub-hosted macOS runners are currently < 26.0, while apple-fm-sdk
           # requires macOS 26+ to build Swift bindings. Keep CI publish in sync
           # mode only; local maintainer runs can build/package artifacts.

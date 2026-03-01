@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from silicon_refinery.exceptions import (
+from fmtools.exceptions import (
     AppleFMSetupError,
     raise_setup_error,
 )
-from silicon_refinery.exceptions import (
+from fmtools.exceptions import (
     require_apple_fm as _require_apple_fm,
 )
 

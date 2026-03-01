@@ -1,5 +1,5 @@
 """
-Tests for silicon_refinery._context — contextvars session scoping.
+Tests for fmtools._context — contextvars session scoping.
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from silicon_refinery._context import (
+from fmtools._context import (
     copy_context,
     get_instructions,
     get_model,
@@ -28,10 +28,8 @@ async def test_session_scope_creates_session():
     mock_session = MagicMock(name="session")
 
     with (
-        patch("silicon_refinery._context.create_model", return_value=mock_model) as create_model,
-        patch(
-            "silicon_refinery._context.create_session", return_value=mock_session
-        ) as create_session,
+        patch("fmtools._context.create_model", return_value=mock_model) as create_model,
+        patch("fmtools._context.create_session", return_value=mock_session) as create_session,
     ):
         async with session_scope("Extract names.") as session:
             assert session is mock_session
@@ -45,10 +43,8 @@ async def test_session_scope_uses_provided_model():
     mock_session = MagicMock(name="session")
 
     with (
-        patch("silicon_refinery._context.create_model") as create_model,
-        patch(
-            "silicon_refinery._context.create_session", return_value=mock_session
-        ) as create_session,
+        patch("fmtools._context.create_model") as create_model,
+        patch("fmtools._context.create_session", return_value=mock_session) as create_session,
     ):
         async with session_scope("inst", model=provided_model) as session:
             create_model.assert_not_called()
@@ -62,8 +58,8 @@ async def test_session_scope_resets_on_exit():
     mock_session = MagicMock()
 
     with (
-        patch("silicon_refinery._context.create_model", return_value=mock_model),
-        patch("silicon_refinery._context.create_session", return_value=mock_session),
+        patch("fmtools._context.create_model", return_value=mock_model),
+        patch("fmtools._context.create_session", return_value=mock_session),
     ):
         async with session_scope("inst"):
             # Inside scope — should be set
@@ -83,11 +79,11 @@ async def test_nested_session_scopes():
 
     with (
         patch(
-            "silicon_refinery._context.create_model",
+            "fmtools._context.create_model",
             side_effect=[outer_model, inner_model],
         ),
         patch(
-            "silicon_refinery._context.create_session",
+            "fmtools._context.create_session",
             side_effect=[outer_session, inner_session],
         ),
     ):
@@ -124,8 +120,8 @@ async def test_get_instructions_returns_correct_value():
     mock_session = MagicMock()
 
     with (
-        patch("silicon_refinery._context.create_model", return_value=mock_model),
-        patch("silicon_refinery._context.create_session", return_value=mock_session),
+        patch("fmtools._context.create_model", return_value=mock_model),
+        patch("fmtools._context.create_session", return_value=mock_session),
     ):
         async with session_scope("my custom instructions"):
             assert get_instructions() == "my custom instructions"
@@ -142,8 +138,8 @@ async def test_copy_context_preserves_session():
     mock_session = MagicMock()
 
     with (
-        patch("silicon_refinery._context.create_model", return_value=mock_model),
-        patch("silicon_refinery._context.create_session", return_value=mock_session),
+        patch("fmtools._context.create_model", return_value=mock_model),
+        patch("fmtools._context.create_session", return_value=mock_session),
     ):
         async with session_scope("inst"):
             ctx = copy_context()
@@ -171,11 +167,11 @@ async def test_concurrent_scopes_are_isolated():
     async def task_a() -> None:
         with (
             patch(
-                "silicon_refinery._context.create_model",
+                "fmtools._context.create_model",
                 return_value=model_a,
             ),
             patch(
-                "silicon_refinery._context.create_session",
+                "fmtools._context.create_session",
                 return_value=session_a,
             ),
         ):
@@ -192,11 +188,11 @@ async def test_concurrent_scopes_are_isolated():
         await barrier.wait()
         with (
             patch(
-                "silicon_refinery._context.create_model",
+                "fmtools._context.create_model",
                 return_value=model_b,
             ),
             patch(
-                "silicon_refinery._context.create_session",
+                "fmtools._context.create_session",
                 return_value=session_b,
             ),
         ):

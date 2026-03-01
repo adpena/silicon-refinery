@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to SiliconRefinery will be documented in this file.
+All notable changes to FMTools will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions increment by patch (0.0.205 → 0.0.206 → 0.0.207 → 0.0.208 ...).
@@ -15,8 +15,8 @@ Final Toga chat layout and transcript UX hardening for release.
 - Transcript rendering now auto-scrolls to newest content with throttled/coalesced scheduling to remain responsive during high-frequency streaming updates.
 
 ### Validation
-- `uv run --project examples/toga_local_chat_app --directory examples/toga_local_chat_app ruff check src/silicon_refinery_chat/app.py`
-- Startup smoke: `uv run silicon-refinery chat --python` (process stayed alive for 10s, then cleanly terminated)
+- `uv run --project examples/toga_local_chat_app --directory examples/toga_local_chat_app ruff check src/fmchat/app.py`
+- Startup smoke: `uv run fmtools chat --python` (process stayed alive for 10s, then cleanly terminated)
 - Async autoscroll stress probe: 120 rapid transcript updates coalesced into 6 scroll calls
 
 ## [0.0.208] - 2026-02-26
@@ -27,21 +27,21 @@ Release and distribution hardening across GitHub, PyPI, and Homebrew.
 - Automated standalone chat-repo publisher workflow and script:
   - `.github/workflows/publish-chat-repo.yml`
   - `scripts/publish_chat_repo.sh`
-- Standalone `silicon-refinery-chat` sync template and documentation under `standalone/silicon-refinery-chat/`.
+- Standalone `fmchat` sync template and documentation under `standalone/fmchat/`.
 
 ### Changed
 - Standardized naming across parent and child app surfaces:
-  - repo/package naming: `silicon-refinery` / `silicon-refinery-chat`
-  - app naming: `SiliconRefinery` / `SiliconRefineryChat`
-- Toga chat app package path renamed to `silicon_refinery_chat`.
-- Briefcase project metadata aligned with `SiliconRefineryChat`.
+  - repo/package naming: `fmtools` / `fmchat`
+  - app naming: `FMTools` / `FMChat`
+- Toga chat app package path renamed to `fmchat`.
+- Briefcase project metadata aligned with `FMChat`.
 - `.gitignore` hardened to prevent local data leakage from SQLite/chat-history artifacts (`*.sqlite*`, `*.db*`) and local publish workspaces.
 
 ### Validation
 - `uv run ruff check ...` on touched Python files
 - `uv run ruff format --check ...` on touched Python files
 - `uv run pytest tests/ -q` (482 passed)
-- Standalone publisher idempotency verified against `adpena/silicon-refinery-chat`
+- Standalone publisher idempotency verified against `adpena/fmchat`
 
 ## [0.0.207] - 2026-02-26
 
@@ -49,10 +49,10 @@ Release hardening focused on desktop-chat stability, no-gil fallback safety, and
 
 ### Added
 - CLI `chat --standard-gil` flag to force stable standard-GIL runtime for GUI demos.
-- Explicit runtime selection + fallback probing in `silicon_refinery.cli` for free-threaded vs standard-GIL execution.
+- Explicit runtime selection + fallback probing in `fmtools.cli` for free-threaded vs standard-GIL execution.
 
 ### Changed
-- `silicon-refinery chat` now prefers free-threaded CPython (`3.14t` then `3.13t`) and retries with an explicit standard-GIL interpreter (`3.14` then `3.13`) if no-gil launch fails.
+- `fmtools chat` now prefers free-threaded CPython (`3.14t` then `3.13t`) and retries with an explicit standard-GIL interpreter (`3.14` then `3.13`) if no-gil launch fails.
 - Toga desktop app UI polish:
   - responsive wrapped sidebar title
   - bottom-pinned action controls
@@ -64,9 +64,9 @@ Release hardening focused on desktop-chat stability, no-gil fallback safety, and
 ### Validation
 - `uv run ruff check .`
 - `uv run ruff format --check .`
-- `uv run ty check silicon_refinery/`
+- `uv run ty check fmtools/`
 - `uv run pytest` (482 passed)
-- `uv run silicon-refinery smoke` (passed)
+- `uv run fmtools smoke` (passed)
 
 ## [0.0.206] - 2026-02-26
 
@@ -99,17 +99,17 @@ Initial public release. Consolidates all prior development into a clean baseline
 - DSPy `AppleFMLM` provider
 
 ### Phase 4 Feature Expansion
-- `silicon_refinery.cache` — sqlite3 content-addressable extraction cache + cached decorator helpers
-- `silicon_refinery.protocols` — typing.Protocol backend interfaces with swappable backend registry, wired through core extraction runtime
-- `silicon_refinery.adapters` — file/stdin/CSV/JSONL/iterable/trio adapters + chunking adapter
-- `silicon_refinery._context` — contextvars-based session scoping helpers
-- `silicon_refinery._threading` — free-threading detection and synchronization primitives
-- `silicon_refinery.scanner` — mmap sliding-window scanner for large files
-- `silicon_refinery.watcher` — hot-folder watcher daemon with extraction convenience API
-- `silicon_refinery._jit` — runtime diagnostics and performance counters
-- `silicon_refinery.arrow_bridge` — Arrow IPC file/buffer bridge + Polars conversion helpers
-- `silicon_refinery.functional` — functional pipeline composition API
-- `silicon_refinery.auditor` — on-device code auditor utilities
+- `fmtools.cache` — sqlite3 content-addressable extraction cache + cached decorator helpers
+- `fmtools.protocols` — typing.Protocol backend interfaces with swappable backend registry, wired through core extraction runtime
+- `fmtools.adapters` — file/stdin/CSV/JSONL/iterable/trio adapters + chunking adapter
+- `fmtools._context` — contextvars-based session scoping helpers
+- `fmtools._threading` — free-threading detection and synchronization primitives
+- `fmtools.scanner` — mmap sliding-window scanner for large files
+- `fmtools.watcher` — hot-folder watcher daemon with extraction convenience API
+- `fmtools._jit` — runtime diagnostics and performance counters
+- `fmtools.arrow_bridge` — Arrow IPC file/buffer bridge + Polars conversion helpers
+- `fmtools.functional` — functional pipeline composition API
+- `fmtools.auditor` — on-device code auditor utilities
 
 ### Phase 4 Hardening Pass
 - `_context.session_scope(...)` now uses the active backend registry (`create_model`/`create_session`) for full pluggable-backend parity
@@ -123,7 +123,7 @@ Initial public release. Consolidates all prior development into a clean baseline
 - `examples/transcript_processing.py` now runs against a bundled sample transcript dataset by default (`datasets/transcript_sample.json`)
 
 ### Toolchain
-- `silicon-refinery` CLI with `setup`, `doctor`, `lint`, `format`, `typecheck`, `test`, and `check` commands (Click-based)
+- `fmtools` CLI with `setup`, `doctor`, `lint`, `format`, `typecheck`, `test`, and `check` commands (Click-based)
 - `scripts/setup.sh` — one-command development environment setup
 - `scripts/doctor.sh` — system prerequisites verification (9 checks)
 - `uv` for package management with `[tool.uv.sources]` git dependency for Apple FM SDK

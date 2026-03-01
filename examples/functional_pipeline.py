@@ -1,5 +1,5 @@
 """
-Functional pipeline example for SiliconRefinery.
+Functional pipeline example for FMTools.
 
 Demonstrates both pure functional transforms and schema extraction steps.
 """
@@ -16,7 +16,7 @@ except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("functional_pipeline.py", exc)
 
 try:
-    from silicon_refinery.functional import collect, extract, filter_fn, map_fn, pipe, source
+    from fmtools.functional import collect, extract, filter_fn, map_fn, pipe, source
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("functional_pipeline.py", exc)
 

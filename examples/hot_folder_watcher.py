@@ -1,5 +1,5 @@
 """
-Hot-folder watcher example for SiliconRefinery.
+Hot-folder watcher example for FMTools.
 
 Demonstrates event streaming with `HotFolder` using a temporary directory.
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery.watcher import HotFolder
+    from fmtools.watcher import HotFolder
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("hot_folder_watcher.py", exc)
 

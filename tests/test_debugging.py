@@ -1,5 +1,5 @@
 """
-Comprehensive tests for silicon_refinery.debugging (enhanced_debug).
+Comprehensive tests for fmtools.debugging (enhanced_debug).
 
 Covers:
   - Decorator wrapping for sync functions (name preservation)
@@ -33,7 +33,7 @@ class TestEnhancedDebugWrapping:
     def test_sync_function_name_preserved(self):
         mock_model = make_mock_model(available=True)
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             def my_func():
@@ -45,7 +45,7 @@ class TestEnhancedDebugWrapping:
     def test_async_function_name_preserved(self):
         mock_model = make_mock_model(available=True)
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             async def my_async_func():
@@ -57,7 +57,7 @@ class TestEnhancedDebugWrapping:
     def test_sync_function_docstring_preserved(self):
         mock_model = make_mock_model(available=True)
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             def my_func():
@@ -71,7 +71,7 @@ class TestEnhancedDebugWrapping:
 
         mock_model = make_mock_model(available=True)
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             async def my_async_func():
@@ -89,7 +89,7 @@ class TestEnhancedDebugNormalExecution:
     def test_sync_function_returns_normally(self):
         mock_model = make_mock_model(available=True)
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             def add(a, b):
@@ -101,7 +101,7 @@ class TestEnhancedDebugNormalExecution:
     async def test_async_function_returns_normally(self):
         mock_model = make_mock_model(available=True)
         with patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             async def add(a, b):
@@ -126,7 +126,7 @@ class TestEnhancedDebugExceptionReraised:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             def bad_func():
@@ -144,7 +144,7 @@ class TestEnhancedDebugExceptionReraised:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             async def bad_func():
@@ -163,7 +163,7 @@ class TestEnhancedDebugExceptionReraised:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug()
             def bad_func():
@@ -195,7 +195,7 @@ class TestHandleException:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("test error for traceback")
@@ -215,7 +215,7 @@ class TestHandleException:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("test")
@@ -241,7 +241,7 @@ class TestHandleException:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise ZeroDivisionError("division by zero")
@@ -263,7 +263,7 @@ class TestHandleException:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("stderr test")
@@ -271,7 +271,7 @@ class TestHandleException:
                 await _handle_exception(e, "test_func", "stderr", None)
 
             captured = capsys.readouterr()
-            assert "SiliconRefinery AI Debug Analysis" in captured.err
+            assert "FMTools AI Debug Analysis" in captured.err
 
     async def test_log_route_uses_selected_level(self, caplog):
         mock_model = make_mock_model(available=True)
@@ -282,9 +282,9 @@ class TestHandleException:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
-            with caplog.at_level(logging.DEBUG, logger="silicon_refinery.debug"):
+            with caplog.at_level(logging.DEBUG, logger="fmtools.debug"):
                 try:
                     raise RuntimeError("log level test")
                 except RuntimeError as e:
@@ -299,7 +299,7 @@ class TestHandleException:
             matching = [
                 r
                 for r in caplog.records
-                if "SiliconRefinery AI Debug Analysis" in r.message and r.levelno == logging.WARNING
+                if "FMTools AI Debug Analysis" in r.message and r.levelno == logging.WARNING
             ]
             assert matching
 
@@ -317,7 +317,7 @@ class TestHandleException:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("multi cause")
@@ -352,7 +352,7 @@ class TestPromptFileGeneration:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
                 prompt_path = f.name
@@ -385,7 +385,7 @@ class TestPromptFileGeneration:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
                 prompt_path = f.name
@@ -410,7 +410,7 @@ class TestPromptFileGeneration:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("no file test")
@@ -429,7 +429,7 @@ class TestPromptFileGeneration:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("default stdout prompt")
@@ -448,7 +448,7 @@ class TestPromptFileGeneration:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             with tempfile.TemporaryDirectory() as tmpdir:
                 prompt_path = os.path.join(tmpdir, "llm_crash_report")
@@ -473,9 +473,9 @@ class TestPromptFileGeneration:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
-            with caplog.at_level(logging.DEBUG, logger="silicon_refinery.debug"):
+            with caplog.at_level(logging.DEBUG, logger="fmtools.debug"):
                 try:
                     raise RuntimeError("prompt log test")
                 except RuntimeError as e:
@@ -520,9 +520,9 @@ class TestContextOverflowRetries:
         with (
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
-            patch("silicon_refinery.debugging.traceback.format_exception", return_value=fake_tb),
+            patch("fmtools.debugging.traceback.format_exception", return_value=fake_tb),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("context overflow test")
@@ -558,12 +558,12 @@ class TestContextOverflowRetries:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
             patch(
-                "silicon_refinery.debugging.fm.ExceededContextWindowSizeError",
+                "fmtools.debugging.fm.ExceededContextWindowSizeError",
                 FakeExceededContextWindowSizeError,
             ),
-            patch("silicon_refinery.debugging.traceback.format_exception", return_value=fake_tb),
+            patch("fmtools.debugging.traceback.format_exception", return_value=fake_tb),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("overflow with typed exception")
@@ -587,9 +587,9 @@ class TestContextOverflowRetries:
         with (
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
-            patch("silicon_refinery.debugging.traceback.format_exception", return_value=huge_tb),
+            patch("fmtools.debugging.traceback.format_exception", return_value=huge_tb),
         ):
-            from silicon_refinery.debugging import _DEBUG_QUERY_MAX_CHARS, _handle_exception
+            from fmtools.debugging import _DEBUG_QUERY_MAX_CHARS, _handle_exception
 
             try:
                 raise RuntimeError("huge traceback")
@@ -615,9 +615,9 @@ class TestContextOverflowRetries:
         with (
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
-            patch("silicon_refinery.debugging.traceback.format_exception", return_value=small_tb),
+            patch("fmtools.debugging.traceback.format_exception", return_value=small_tb),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("tiny traceback")
@@ -644,7 +644,7 @@ class TestTwoStageDebugPipeline:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("two stage test")
@@ -685,7 +685,7 @@ class TestTwoStageDebugPipeline:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("handoff overflow")
@@ -711,7 +711,7 @@ class TestEnhancedDebugModelUnavailable:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession") as sess_cls,
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("unavailable model test")
@@ -732,7 +732,7 @@ class TestEnhancedDebugModelUnavailable:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession"),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("test")
@@ -740,7 +740,7 @@ class TestEnhancedDebugModelUnavailable:
                 await _handle_exception(e, "func", "stdout", None)
 
             captured = capsys.readouterr()
-            assert "SiliconRefinery AI Debug Analysis" not in captured.out
+            assert "FMTools AI Debug Analysis" not in captured.out
 
 
 # ========================================================================
@@ -758,7 +758,7 @@ class TestEnhancedDebugAnalysisFailure:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("original error")
@@ -780,7 +780,7 @@ class TestEnhancedDebugAnalysisFailure:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise ValueError("test")
@@ -810,7 +810,7 @@ class TestEnhancedDebugRouting:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug(summary_to="stdout")
             def failing_func():
@@ -833,7 +833,7 @@ class TestEnhancedDebugRouting:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
                 prompt_path = f.name
@@ -864,7 +864,7 @@ class TestEnhancedDebugRouting:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("route none test")
@@ -872,7 +872,7 @@ class TestEnhancedDebugRouting:
                 await _handle_exception(e, "test_func", None, None)
 
             captured = capsys.readouterr()
-            assert "SiliconRefinery AI Debug Analysis" not in captured.out
+            assert "FMTools AI Debug Analysis" not in captured.out
 
 
 class TestEnhancedDebugSilenced:
@@ -883,7 +883,7 @@ class TestEnhancedDebugSilenced:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession") as sess_cls,
         ):
-            from silicon_refinery.debugging import _handle_exception
+            from fmtools.debugging import _handle_exception
 
             try:
                 raise RuntimeError("fully silenced")
@@ -919,7 +919,7 @@ class TestEnhancedDebugTimeoutHandling:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug(summary_to="stdout")
             def bad_func():
@@ -954,7 +954,7 @@ class TestEnhancedDebugTimeoutHandling:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug(summary_to="stdout")
             def bad_func():
@@ -992,7 +992,7 @@ class TestEnhancedDebugTimeoutHandling:
             patch("apple_fm_sdk.SystemLanguageModel", return_value=mock_model),
             patch("apple_fm_sdk.LanguageModelSession", return_value=mock_session),
         ):
-            from silicon_refinery.debugging import enhanced_debug
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug(summary_to="stdout")
             def divide():
@@ -1002,10 +1002,8 @@ class TestEnhancedDebugTimeoutHandling:
                 divide()
 
     def test_analysis_failure_never_masks_original_sync_exception(self):
-        with patch(
-            "silicon_refinery.debugging._handle_exception", side_effect=RuntimeError("boom")
-        ):
-            from silicon_refinery.debugging import enhanced_debug
+        with patch("fmtools.debugging._handle_exception", side_effect=RuntimeError("boom")):
+            from fmtools.debugging import enhanced_debug
 
             @enhanced_debug(summary_to="stdout")
             def bad_func():

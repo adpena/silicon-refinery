@@ -1,5 +1,5 @@
 """
-Custom backend example for SiliconRefinery protocols.
+Custom backend example for FMTools protocols.
 
 Shows how ``set_backend()`` can redirect ``@local_extract`` away from Apple FM
 for testing, simulation, or alternative providers.
@@ -12,8 +12,8 @@ import asyncio
 from examples._support import AppleFMSetupError, raise_sdk_setup_error, require_apple_fm
 
 try:
-    from silicon_refinery.decorators import local_extract
-    from silicon_refinery.protocols import get_backend, set_backend
+    from fmtools.decorators import local_extract
+    from fmtools.protocols import get_backend, set_backend
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("custom_backend.py", exc)
 

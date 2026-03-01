@@ -2,7 +2,7 @@
 Hot Folder Daemon — filesystem watcher for automatic extraction pipelines.
 
 Monitors a directory for new/changed files using stdlib-only polling
-(os.scandir + asyncio.sleep) and feeds them through the SiliconRefinery
+(os.scandir + asyncio.sleep) and feeds them through the FMTools
 extraction pipeline.
 """
 
@@ -26,7 +26,7 @@ from .protocols import create_model, create_session
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Awaitable, Callable
 
-logger = logging.getLogger("silicon_refinery")
+logger = logging.getLogger("fmtools")
 
 
 @dataclass(frozen=True)

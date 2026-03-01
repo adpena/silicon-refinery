@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "silicon-refinery"
+name = "fmtools"
 version = "0.0.217"
 description = "Async-native Python framework built on Apple’s Foundation Models Python SDK for schema-validated extraction, streaming pipelines, local chat, and crash debugging on Apple Silicon."
 readme = "README.md"
@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.scripts]
-silicon-refinery = "silicon_refinery.cli:cli_entry"
+fmtools = "fmtools.cli:cli_entry"
 
 [project.optional-dependencies]
 api = ["fastapi>=0.100.0", "uvicorn>=0.30.0"]
@@ -74,10 +74,10 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["silicon_refinery"]
+known-first-party = ["fmtools"]
 
 [tool.ty.environment]
 python-version = "3.13"
 
 [tool.hatch.build.targets.wheel]
-packages = ["silicon_refinery"]
+packages = ["fmtools"]

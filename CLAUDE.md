@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SiliconRefinery is a Python ETL framework for on-device structured data extraction using the Apple Foundation Models SDK (`apple_fm_sdk`). All inference runs locally on Apple Silicon via the Neural Engine — no cloud calls, no API keys. Requires macOS 26+ and Apple Silicon hardware.
+FMTools is a Python ETL framework for on-device structured data extraction using the Apple Foundation Models SDK (`apple_fm_sdk`). All inference runs locally on Apple Silicon via the Neural Engine — no cloud calls, no API keys. Requires macOS 26+ and Apple Silicon hardware.
 
 ## Build & Development Commands
 
@@ -16,10 +16,10 @@ Package manager: **uv** (with hatchling build backend).
 uv sync --all-groups            # Install all dependencies (runtime + dev)
 
 # Quality gates (via CLI or directly)
-uv run silicon-refinery check   # Full CI gate: lint + format + typecheck + tests
-uv run silicon-refinery lint    # Ruff linter
-uv run silicon-refinery format  # Ruff formatter
-uv run silicon-refinery typecheck  # ty type checker on silicon_refinery/
+uv run fmtools check   # Full CI gate: lint + format + typecheck + tests
+uv run fmtools lint    # Ruff linter
+uv run fmtools format  # Ruff formatter
+uv run fmtools typecheck  # ty type checker on fmtools/
 
 # Testing
 uv run pytest tests/ -v                     # Full test suite
@@ -27,7 +27,7 @@ uv run pytest tests/test_decorators.py -v   # Single test file
 uv run pytest tests/ -v -k "test_name"      # Single test by name
 
 # Diagnostics
-uv run silicon-refinery doctor  # Verify platform prerequisites
+uv run fmtools doctor  # Verify platform prerequisites
 ```
 
 CI runs lint, format check, typecheck, and pytest on Python 3.13 and 3.14.
@@ -56,7 +56,7 @@ There is also a **functional pipeline API** (`functional.py`) using `pipe(source
 
 ### Testing Strategy
 
-All tests mock `apple_fm_sdk` — no Apple Silicon required to run the test suite. `tests/conftest.py` installs a fake `apple_fm_sdk` into `sys.modules` **before** any `silicon_refinery` imports. Key fixtures: `mock_fm_available`, `mock_fm_unavailable`, `mock_fm_failing`, `mock_fm_context_window_error`. The `asyncio_mode = "auto"` pytest setting means async test functions run automatically without `@pytest.mark.asyncio`.
+All tests mock `apple_fm_sdk` — no Apple Silicon required to run the test suite. `tests/conftest.py` installs a fake `apple_fm_sdk` into `sys.modules` **before** any `fmtools` imports. Key fixtures: `mock_fm_available`, `mock_fm_unavailable`, `mock_fm_failing`, `mock_fm_context_window_error`. The `asyncio_mode = "auto"` pytest setting means async test functions run automatically without `@pytest.mark.asyncio`.
 
 ## Key Conventions
 
@@ -84,5 +84,5 @@ All tests mock `apple_fm_sdk` — no Apple Silicon required to run the test suit
 | `adapters.py` | Input adapters: file/stdin/CSV/JSONL/trio |
 | `scanner.py` | mmap sliding-window scanner for large files |
 | `watcher.py` | Hot-folder polling daemon |
-| `cli.py` | Click-based CLI (`silicon-refinery` command) |
+| `cli.py` | Click-based CLI (`fmtools` command) |
 | `exceptions.py` | `AppleFMSetupError` and setup diagnostics |

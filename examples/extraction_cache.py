@@ -1,5 +1,5 @@
 """
-Extraction cache example for SiliconRefinery.
+Extraction cache example for FMTools.
 
 Demonstrates how to memoize repeated extractions with a sqlite-backed cache.
 """
@@ -17,7 +17,7 @@ except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("extraction_cache.py", exc)
 
 try:
-    from silicon_refinery.cache import ExtractionCache, cached_local_extract
+    from fmtools.cache import ExtractionCache, cached_local_extract
 except Exception as exc:  # pragma: no cover - import error path
     raise_sdk_setup_error("extraction_cache.py", exc)
 
